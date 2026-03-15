@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>micro:bit Radio Simulator</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f8;
+    text-align:center;
+}
+
+.container{
+    width:500px;
+    margin:auto;
+}
+
+.box{
+    border:1px solid #ccc;
+    border-radius:10px;
+    padding:15px;
+    margin:10px;
+    background:white;
+}
+
+button{
+    padding:10px 20px;
+    margin:5px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+#log{
+    width:100%;
+    height:120px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>micro:bit Radio Simulator</h2>
+
+<div class="box">
+<h3>micro:bit 송신기</h3>
+<p id="send">전송수 : 0</p>
+
+<button onclick="pressA()">A 버튼 (전송 +1)</button>
+<button onclick="pressB()">B 버튼 (초기화)</button>
+</div>
+
+<div class="box">
+<h3>micro:bit 수신기</h3>
+<p id="recv">수신수 : 0</p>
+<p id="cal">수신수 × 0.32 = 0</p>
+</div>
+
+<div class="box">
+<h3>로그</h3>
+<textarea id="log"></textarea>
+</div>
+
+</div>
+
+<script>
+
+let radio_value = 0
+let send_count = 0
+
+function pressA(){
+
+    send_count += 1
+    radio_value = send_count
+
+    document.getElementById("send").innerText =
+    "전송수 : " + send_count
+
+    addLog("송신 → " + radio_value)
+
+    receiveRadio()
+}
+
+function pressB(){
+
+    send_count = 0
+    radio_value = 0
+
+    document.getElementById("send").innerText = "전송수 : 0"
+    document.getElementById("recv").innerText = "수신수 : 0"
+    document.getElementById("cal").innerText = "수신수 × 0.32 = 0"
+
+    addLog("초기화")
+}
+
+function receiveRadio(){
+
+    let recv = radio_value
+    let calories = recv * 0.32
+
+    document.getElementById("recv").innerText =
+    "수신수 : " + recv
+
+    document.getElementById("cal").innerText =
+    "수신수 × 0.32 = " + calories.toFixed(2)
+}
+
+function addLog(text){
+
+    let log = document.getElementById("log")
+    log.value += text + "\n"
+    log.scrollTop = log.scrollHeight
+}
+
+</script>
+
+</body>
+</html>
