@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>전국 시군구 실시간 날씨 지도(전북과학고_인수샘)</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background: #f4f7f6; font-family: 'Malgun Gothic', sans-serif; }
+        #map { width: 100%; height: 100vh; }
+        .weather-popup { min-width: 180px; }
+        .popup-header { display: flex; align-items: center; border-bottom: 2px solid #3498db; margin-bottom: 8px; padding-bottom: 4px; font-weight: bold; font-size: 14px; color: #2c3e50; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 13px; }
+        .info-label { color: #555; }
+        .info-value { font-weight: bold; color: #e67e22; }
+        .recommend-box { margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 12px; line-height: 1.4; color: #2c3e50; word-break: keep-all; }
+        .loading { padding: 10px; text-align: center; color: #95a5a6; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    // ※ 주의: 기상청 API 키는 'Decoding'된 키를 사용하는 것이 일반적입니다.
+    const WEATHER_API_KEY = "eb995e1b419400d31480385c6b40c859b8ade3502da6cf3823d9b84f1d69c8a6"; 
+
+    // 1. 전국 주요 좌표 데이터 (제공해주신 데이터 유지)
+    const regions = [
+        {"name":"서울 종로구","lat":37.573,"lon":126.979,"nx":60,"ny":127}, {"name":"서울 중구","lat":37.564,"lon":126.998,"nx":60,"ny":127},
+        {"name":"서울 용산구","lat":37.532,"lon":126.99,"nx":60,"ny":126}, {"name":"서울 성동구","lat":37.564,"lon":127.037,"nx":61,"ny":127},
+        {"name":"서울 광진구","lat":37.539,"lon":127.083,"nx":62,"ny":126}, {"name":"서울 동대문구","lat":37.574,"lon":127.04,"nx":61,"ny":127},
+        {"name":"서울 중랑구","lat":37.606,"lon":127.093,"nx":62,"ny":128}, {"name":"서울 성북구","lat":37.59,"lon":127.016,"nx":61,"ny":127},
+        {"name":"서울 강북구","lat":37.64,"lon":127.025,"nx":61,"ny":128}, {"name":"서울 도봉구","lat":37.669,"lon":127.047,"nx":61,"ny":129},
+        {"name":"서울 노원구","lat":37.654,"lon":127.056,"nx":61,"ny":129}, {"name":"서울 은평구","lat":37.603,"lon":126.93,"nx":59,"ny":127},
+        {"name":"서울 서대문구","lat":37.579,"lon":126.937,"nx":59,"ny":127}, {"name":"서울 마포구","lat":37.566,"lon":126.902,"nx":59,"ny":127},
+        {"name":"서울 양천구","lat":37.517,"lon":126.866,"nx":58,"ny":126}, {"name":"서울 강서구","lat":37.551,"lon":126.849,"nx":58,"ny":126},
+        {"name":"서울 구로구","lat":37.495,"lon":126.887,"nx":58,"ny":125}, {"name":"서울 금천구","lat":37.451,"lon":126.902,"nx":59,"ny":124},
+        {"name":"서울 영등포구","lat":37.526,"lon":126.896,"nx":58,"ny":126}, {"name":"서울 동작구","lat":37.512,"lon":126.94,"nx":59,"ny":125},
+        {"name":"서울 관악구","lat":37.478,"lon":126.952,"nx":59,"ny":125}, {"name":"서울 서초구","lat":37.484,"lon":127.034,"nx":61,"ny":125},
+        {"name":"서울 강남구","lat":37.517,"lon":127.047,"nx":61,"ny":126}, {"name":"서울 송파구","lat":37.514,"lon":127.106,"nx":62,"ny":126},
+        {"name":"서울 강동구","lat":37.53,"lon":127.124,"nx":62,"ny":126}, {"name":"부산 중구","lat":35.106,"lon":129.032,"nx":97,"ny":74},
+        {"name":"부산 서구","lat":35.098,"lon":129.019,"nx":96,"ny":74}, {"name":"부산 동구","lat":35.128,"lon":129.043,"nx":98,"ny":75},
+        {"name":"부산 영도구","lat":35.091,"lon":129.066,"nx":97,"ny":74}, {"name":"부산 부산진구","lat":35.163,"lon":129.05,"nx":97,"ny":75},
+        {"name":"부산 동래구","lat":35.197,"lon":129.09,"nx":98,"ny":76}, {"name":"부산 남구","lat":35.137,"lon":129.082,"nx":98,"ny":75},
+        {"name":"부산 북구","lat":35.198,"lon":129.006,"nx":96,"ny":76}, {"name":"부산 해운대구","lat":35.163,"lon":129.163,"nx":99,"ny":75},
+        {"name":"부산 사하구","lat":35.105,"lon":128.97,"nx":96,"ny":73}, {"name":"부산 금정구","lat":35.243,"lon":129.092,"nx":98,"ny":77},
+        {"name":"부산 강서구","lat":35.213,"lon":128.98,"nx":96,"ny":76}, {"name":"부산 연제구","lat":35.176,"lon":129.079,"nx":98,"ny":76},
+        {"name":"부산 수영구","lat":35.145,"lon":129.113,"nx":98,"ny":75}, {"name":"부산 사상구","lat":35.152,"lon":128.99,"nx":96,"ny":75},
+        {"name":"부산 기장군","lat":35.244,"lon":129.21,"nx":100,"ny":77}, {"name":"대구 중구","lat":35.869,"lon":128.602,"nx":89,"ny":90},
+        {"name":"대구 동구","lat":35.886,"lon":128.636,"nx":90,"ny":91}, {"name":"대구 서구","lat":35.871,"lon":128.56,"nx":88,"ny":90},
+        {"name":"대구 남구","lat":35.846,"lon":128.598,"nx":89,"ny":90}, {"name":"대구 북구","lat":35.89,"lon":128.58,"nx":89,"ny":91},
+        {"name":"대구 수성구","lat":35.859,"lon":128.631,"nx":89,"ny":90}, {"name":"대구 달서구","lat":35.83,"lon":128.53,"nx":88,"ny":90},
+        {"name":"대구 달성군","lat":35.775,"lon":128.431,"nx":86,"ny":88}, {"name":"인천 중구","lat":37.475,"lon":126.621,"nx":54,"ny":125},
+        {"name":"인천 동구","lat":37.475,"lon":126.643,"nx":55,"ny":125}, {"name":"인천 미추홀구","lat":37.464,"lon":126.657,"nx":55,"ny":124},
+        {"name":"인천 연수구","lat":37.409,"lon":126.677,"nx":55,"ny":123}, {"name":"인천 남동구","lat":37.445,"lon":126.73,"nx":56,"ny":124},
+        {"name":"인천 부평구","lat":37.509,"lon":126.722,"nx":56,"ny":125}, {"name":"인천 계양구","lat":37.537,"lon":126.74,"nx":56,"ny":126},
+        {"name":"인천 서구","lat":37.545,"lon":126.64,"nx":54,"ny":126}, {"name":"인천 강화군","lat":37.747,"lon":126.48,"nx":51,"ny":130},
+        {"name":"인천 옹진군","lat":37.447,"lon":126.62,"nx":54,"ny":124}, {"name":"광주 동구","lat":35.146,"lon":126.924,"nx":58,"ny":74},
+        {"name":"광주 서구","lat":35.155,"lon":126.852,"nx":57,"ny":74}, {"name":"광주 남구","lat":35.127,"lon":126.903,"nx":58,"ny":73},
+        {"name":"광주 북구","lat":35.174,"lon":126.91,"nx":58,"ny":74}, {"name":"광주 광산구","lat":35.139,"lon":126.79,"nx":57,"ny":74},
+        {"name":"대전 동구","lat":36.342,"lon":127.444,"nx":68,"ny":100}, {"name":"대전 중구","lat":36.324,"lon":127.42,"nx":68,"ny":100},
+        {"name":"대전 서구","lat":36.336,"lon":127.38,"nx":67,"ny":100}, {"name":"대전 유성구","lat":36.354,"lon":127.342,"nx":67,"ny":100},
+        {"name":"대전 대덕구","lat":36.376,"lon":127.42,"nx":68,"ny":101}, {"name":"울산 중구","lat":35.562,"lon":129.317,"nx":102,"ny":85},
+        {"name":"울산 남구","lat":35.539,"lon":129.311,"nx":102,"ny":84}, {"name":"울산 동구","lat":35.511,"lon":129.42,"nx":103,"ny":84},
+        {"name":"울산 북구","lat":35.587,"lon":129.349,"nx":102,"ny":86}, {"name":"울산 울주군","lat":35.52,"lon":129.23,"nx":101,"ny":84},
+        {"name":"세종시","lat":36.48,"lon":127.289,"nx":66,"ny":103}, {"name":"수원시 장안구","lat":37.3,"lon":127.0,"nx":60,"ny":122},
+        {"name":"수원시 권선구","lat":37.25,"lon":126.98,"nx":59,"ny":121}, {"name":"수원시 팔달구","lat":37.28,"lon":127.01,"nx":60,"ny":121},
+        {"name":"수원시 영통구","lat":37.26,"lon":127.05,"nx":61,"ny":121}, {"name":"성남시 수정구","lat":37.45,"lon":127.15,"nx":62,"ny":124},
+        {"name":"성남시 중원구","lat":37.44,"lon":127.15,"nx":62,"ny":124}, {"name":"성남시 분당구","lat":37.38,"lon":127.12,"nx":62,"ny":123},
+        {"name":"의정부시","lat":37.73,"lon":127.04,"nx":61,"ny":130}, {"name":"안양시 만안구","lat":37.4,"lon":126.92,"nx":59,"ny":123},
+        {"name":"안양시 동안구","lat":37.39,"lon":126.95,"nx":59,"ny":123}, {"name":"부천시","lat":37.5,"lon":126.78,"nx":56,"ny":125},
+        {"name":"광명시","lat":37.47,"lon":126.86,"nx":58,"ny":125}, {"name":"평택시","lat":36.99,"lon":127.11,"nx":62,"ny":115},
+        {"name":"동두천시","lat":37.9,"lon":127.06,"nx":61,"ny":132}, {"name":"안산시 상록구","lat":37.31,"lon":126.86,"nx":58,"ny":122},
+        {"name":"안산시 단원구","lat":37.31,"lon":126.82,"nx":57,"ny":122}, {"name":"고양시 덕양구","lat":37.66,"lon":126.83,"nx":57,"ny":128},
+        {"name":"고양시 일산동구","lat":37.68,"lon":126.77,"nx":56,"ny":129}, {"name":"고양시 일산서구","lat":37.68,"lon":126.73,"nx":56,"ny":129},
+        {"name":"과천시","lat":37.42,"lon":126.98,"nx":60,"ny":124}, {"name":"구리시","lat":37.6,"lon":127.14,"nx":62,"ny":127},
+        {"name":"남양주시","lat":37.63,"lon":127.22,"nx":63,"ny":128}, {"name":"오산시","lat":37.15,"lon":127.07,"nx":61,"ny":119},
+        {"name":"시흥시","lat":37.38,"lon":126.8,"nx":57,"ny":123}, {"name":"군포시","lat":37.36,"lon":126.93,"nx":59,"ny":123},
+        {"name":"의왕시","lat":37.34,"lon":126.97,"nx":60,"ny":122}, {"name":"하남시","lat":37.53,"lon":127.21,"nx":63,"ny":126},
+        {"name":"용인시 처인구","lat":37.23,"lon":127.2,"nx":63,"ny":120}, {"name":"용인시 기흥구","lat":37.28,"lon":127.11,"nx":62,"ny":121},
+        {"name":"용인시 수지구","lat":37.32,"lon":127.09,"nx":61,"ny":122}, {"name":"파주시","lat":37.76,"lon":126.78,"nx":57,"ny":131},
+        {"name":"이천시","lat":37.27,"lon":127.44,"nx":65,"ny":121}, {"name":"안성시","lat":37.0,"lon":127.27,"nx":64,"ny":116},
+        {"name":"김포시","lat":37.61,"lon":126.71,"nx":56,"ny":128}, {"name":"화성시","lat":37.2,"lon":126.83,"nx":58,"ny":119},
+        {"name":"광주시","lat":37.42,"lon":127.25,"nx":63,"ny":124}, {"name":"양주시","lat":37.78,"lon":127.03,"nx":61,"ny":131},
+        {"name":"포천시","lat":37.89,"lon":127.2,"nx":63,"ny":133}, {"name":"여주시","lat":37.29,"lon":127.63,"nx":68,"ny":122},
+        {"name":"연천군","lat":38.09,"lon":127.07,"nx":62,"ny":136}, {"name":"가평군","lat":37.83,"lon":127.51,"nx":66,"ny":132},
+        {"name":"양평군","lat":37.49,"lon":127.49,"nx":66,"ny":125}, {"name":"춘천시","lat":37.881,"lon":127.729,"nx":73,"ny":134},
+        {"name":"원주시","lat":37.34,"lon":127.92,"nx":71,"ny":123}, {"name":"강릉시","lat":37.752,"lon":128.876,"nx":92,"ny":131},
+        {"name":"동해시","lat":37.52,"lon":129.11,"nx":98,"ny":127}, {"name":"태백시","lat":37.16,"lon":128.98,"nx":95,"ny":119},
+        {"name":"속초시","lat":38.2,"lon":128.59,"nx":87,"ny":141}, {"name":"삼척시","lat":37.44,"lon":129.16,"nx":98,"ny":124},
+        {"name":"홍천군","lat":37.69,"lon":127.88,"nx":72,"ny":129}, {"name":"횡성군","lat":37.49,"lon":127.98,"nx":72,"ny":125},
+        {"name":"영월군","lat":37.18,"lon":128.46,"nx":84,"ny":119}, {"name":"평창군","lat":37.37,"lon":128.39,"nx":82,"ny":123},
+        {"name":"정선군","lat":37.38,"lon":128.66,"nx":88,"ny":123}, {"name":"철원군","lat":38.14,"lon":127.3,"nx":65,"ny":137},
+        {"name":"화천군","lat":38.1,"lon":127.71,"nx":69,"ny":135}, {"name":"양구군","lat":38.1,"lon":127.98,"nx":73,"ny":136},
+        {"name":"인제군","lat":38.06,"lon":128.17,"nx":77,"ny":135}, {"name":"고성군","lat":38.38,"lon":128.47,"nx":86,"ny":145},
+        {"name":"양양군","lat":38.07,"lon":128.62,"nx":88,"ny":136}, {"name":"청주시 상당구","lat":36.63,"lon":127.49,"nx":69,"ny":107},
+        {"name":"청주시 서원구","lat":36.62,"lon":127.46,"nx":68,"ny":107}, {"name":"청주시 흥덕구","lat":36.65,"lon":127.43,"nx":68,"ny":107},
+        {"name":"청주시 청원구","lat":36.68,"lon":127.49,"nx":69,"ny":108}, {"name":"충주시","lat":37.0,"lon":127.92,"nx":71,"ny":115},
+        {"name":"제천시","lat":37.13,"lon":128.19,"nx":79,"ny":118}, {"name":"보은군","lat":36.48,"lon":127.72,"nx":71,"ny":104},
+        {"name":"옥천군","lat":36.3,"lon":127.57,"nx":70,"ny":98}, {"name":"영동군","lat":36.17,"lon":127.78,"nx":73,"ny":94},
+        {"name":"증평군","lat":36.78,"lon":127.58,"nx":69,"ny":110}, {"name":"진천군","lat":36.85,"lon":127.44,"nx":67,"ny":111},
+        {"name":"괴산군","lat":36.81,"lon":127.78,"nx":71,"ny":111}, {"name":"음성군","lat":36.94,"lon":127.69,"nx":69,"ny":114},
+        {"name":"단양군","lat":36.98,"lon":128.36,"nx":82,"ny":115}, {"name":"천안시 동남구","lat":36.8,"lon":127.15,"nx":62,"ny":109},
+        {"name":"천안시 서북구","lat":36.83,"lon":127.14,"nx":62,"ny":110}, {"name":"공주시","lat":36.45,"lon":127.12,"nx":63,"ny":103},
+        {"name":"보령시","lat":36.34,"lon":126.6,"nx":54,"ny":99}, {"name":"아산시","lat":36.78,"lon":126.99,"nx":60,"ny":108},
+        {"name":"서산시","lat":36.78,"lon":126.45,"nx":51,"ny":109}, {"name":"논산시","lat":36.18,"lon":127.09,"nx":62,"ny":95},
+        {"name":"계룡시","lat":36.27,"lon":127.25,"nx":65,"ny":98}, {"name":"당진시","lat":36.89,"lon":126.63,"nx":54,"ny":112},
+        {"name":"금산군","lat":36.1,"lon":127.48,"nx":68,"ny":93}, {"name":"부여군","lat":36.27,"lon":126.91,"nx":59,"ny":98},
+        {"name":"서천군","lat":36.08,"lon":126.69,"nx":55,"ny":92}, {"name":"청양군","lat":36.4,"lon":126.8,"nx":57,"ny":101},
+        {"name":"홍성군","lat":36.6,"lon":126.66,"nx":54,"ny":104}, {"name":"예산군","lat":36.68,"lon":126.84,"nx":57,"ny":106},
+        {"name":"태안군","lat":36.75,"lon":126.29,"nx":48,"ny":108}, {"name":"전주시 완산구","lat":35.81,"lon":127.14,"nx":63,"ny":89},
+        {"name":"전주시 덕진구","lat":35.84,"lon":127.12,"nx":62,"ny":90}, {"name":"군산시","lat":36.0,"lon":126.7,"nx":56,"ny":92},
+        {"name":"익산시","lat":35.94,"lon":126.95,"nx":60,"ny":91}, {"name":"정읍시","lat":35.57,"lon":126.85,"nx":58,"ny":83},
+        {"name":"남원시","lat":35.41,"lon":127.39,"nx":68,"ny":80}, {"name":"김제시","lat":35.8,"lon":126.88,"nx":59,"ny":88},
+        {"name":"완주군","lat":35.9,"lon":127.15,"nx":63,"ny":89}, {"name":"진안군","lat":35.79,"lon":127.42,"nx":68,"ny":88},
+        {"name":"무주군","lat":36.0,"lon":127.66,"nx":72,"ny":93}, {"name":"장수군","lat":35.65,"lon":127.52,"nx":70,"ny":85},
+        {"name":"임실군","lat":35.62,"lon":127.29,"nx":66,"ny":84}, {"name":"순창군","lat":35.37,"lon":127.14,"nx":63,"ny":79},
+        {"name":"고창군","lat":35.43,"lon":126.7,"nx":56,"ny":80}, {"name":"부안군","lat":35.73,"lon":126.73,"nx":57,"ny":87},
+        {"name":"목포시","lat":34.812,"lon":126.392,"nx":50,"ny":67}, {"name":"여수시","lat":34.76,"lon":127.66,"nx":73,"ny":66},
+        {"name":"순천시","lat":34.95,"lon":127.49,"nx":70,"ny":70}, {"name":"나주시","lat":35.03,"lon":126.71,"nx":56,"ny":71},
+        {"name":"광주양시","lat":34.94,"lon":127.69,"nx":73,"ny":70}, {"name":"담양군","lat":35.32,"lon":126.98,"nx":60,"ny":77},
+        {"name":"곡성군","lat":35.28,"lon":127.29,"nx":66,"ny":76}, {"name":"구례군","lat":35.2,"lon":127.46,"nx":68,"ny":74},
+        {"name":"고흥군","lat":34.6,"lon":127.27,"nx":65,"ny":62}, {"name":"보성군","lat":34.77,"lon":127.08,"nx":62,"ny":65},
+        {"name":"화순군","lat":35.06,"lon":126.98,"nx":60,"ny":72}, {"name":"장흥군","lat":34.68,"lon":126.9,"nx":59,"ny":64},
+        {"name":"강진군","lat":34.64,"lon":126.76,"nx":56,"ny":63}, {"name":"해남군","lat":34.57,"lon":126.6,"nx":53,"ny":62},
+        {"name":"영암군","lat":34.8,"lon":126.69,"nx":55,"ny":66}, {"name":"무안군","lat":34.99,"lon":126.48,"nx":52,"ny":70},
+        {"name":"함평군","lat":35.06,"lon":126.51,"nx":53,"ny":72}, {"name":"영광군","lat":35.27,"lon":126.51,"nx":53,"ny":77},
+        {"name":"장성군","lat":35.3,"lon":126.78,"nx":57,"ny":77}, {"name":"완도군","lat":34.32,"lon":126.75,"nx":56,"ny":57},
+        {"name":"진도군","lat":34.48,"lon":126.26,"nx":49,"ny":59}, {"name": "신안군", "lat": 34.83, "lon": 126.11, "nx": 48, "ny": 68},
+        {"name":"포항시 남구","lat":36.01,"lon":129.36,"nx":102,"ny":94}, {"name":"포항시 북구","lat":36.05,"lon":129.38,"nx":102,"ny":95},
+        {"name":"경주시","lat":35.85,"lon":129.22,"nx":100,"ny":91}, {"name":"김천시","lat":36.14,"lon":128.11,"nx":80,"ny":96},
+        {"name":"안동시","lat":36.568,"lon":128.729,"nx":91,"ny":106}, {"name":"구미시","lat":36.11,"lon":128.33,"nx":84,"ny":96},
+        {"name":"영주시","lat":36.81,"lon":128.62,"nx":89,"ny":110}, {"name":"영천시","lat":35.97,"lon":128.93,"nx":94,"ny":93},
+        {"name":"상주시","lat":36.41,"lon":128.15,"nx":80,"ny":102}, {"name":"문경시","lat":36.59,"lon":128.19,"nx":81,"ny":105},
+        {"name":"경산시","lat":35.82,"lon":128.74,"nx":91,"ny":90}, {"name":"군위군","lat":36.24,"lon":128.57,"nx":88,"ny":99},
+        {"name":"의성군","lat":36.35,"lon":128.69,"nx":90,"ny":102}, {"name":"청송군","lat":36.43,"lon":129.05,"nx":96,"ny":103},
+        {"name":"영양군","lat":36.66,"lon":129.11,"nx":97,"ny":108}, {"name":"영덕군","lat":36.41,"lon":129.36,"nx":101,"ny":103},
+        {"name":"청도군","lat":35.65,"lon":128.73,"nx":91,"ny":86}, {"name":"고령군","lat":35.73,"lon":128.26,"nx":83,"ny":88},
+        {"name":"성주군","lat":35.92,"lon":128.28,"nx":84,"ny":93}, {"name":"칠곡군","lat":35.94,"lon":128.4,"nx":86,"ny":93},
+        {"name":"예천군","lat":36.65,"lon":128.45,"nx":86,"ny":107}, {"name":"봉화군","lat":36.89,"lon":128.73,"nx":91,"ny":112},
+        {"name":"울진군","lat":36.99,"lon":129.4,"nx":102,"ny":115}, {"name":"울릉군","lat":37.5,"lon":130.9,"nx":127,"ny":127},
+        {"name":"창원시 의창구","lat":35.25,"lon":128.69,"nx":90,"ny":77}, {"name":"창원시 성산구","lat":35.22,"lon":128.68,"nx":90,"ny":76},
+        {"name":"창원시 마산합포구","lat":35.19,"lon":128.57,"nx":89,"ny":75}, {"name":"창원시 마산회원구","lat":35.23,"lon":128.58,"nx":89,"ny":76},
+        {"name":"창원시 진해구","lat":35.15,"lon":128.67,"nx":90,"ny":74}, {"name":"진주시","lat":35.18,"lon":128.08,"nx":81,"ny":75},
+        {"name":"통영시","lat":34.85,"lon":128.43,"nx":87,"ny":68}, {"name":"사천시","lat":35.0,"lon":128.06,"nx":80,"ny":71},
+        {"name":"김해시","lat":35.23,"lon":128.88,"nx":95,"ny":77}, {"name":"밀양시","lat":35.5,"lon":128.74,"nx":91,"ny":83},
+        {"name":"거제시","lat":34.88,"lon":128.62,"nx":90,"ny":69}, {"name":"양산시","lat":35.34,"lon":129.03,"nx":97,"ny":79},
+        {"name":"의령군","lat":35.32,"lon":128.26,"nx":83,"ny":79}, {"name":"함안군","lat":35.27,"lon":128.4,"nx":85,"ny":78},
+        {"name":"창녕군","lat":35.54,"lon":128.49,"nx":87,"ny":84}, {"name":"고성군","lat":35.0,"lon":128.32,"nx":84,"ny":71},
+        {"name":"남해군","lat":34.83,"lon":127.89,"nx":77,"ny":66}, {"name":"하동군","lat":35.17,"lon":127.75,"nx":74,"ny":74},
+        {"name":"산청군","lat":35.41,"lon":127.87,"nx":76,"ny":81}, {"name":"함양군","lat":35.52,"lon":127.72,"nx":72,"ny":83},
+        {"name":"거창군","lat":35.68,"lon":127.91,"nx":77,"ny":87}, {"name":"합천군","lat":35.56,"lon":128.16,"nx":81,"ny":85},
+        {"name":"제주시","lat":33.499,"lon":126.531,"nx":52,"ny":38}, {"name":"서귀포시","lat":33.254,"lon":126.562,"nx":52,"ny":33}
+    ];
+
+    // 2. 지도 초기화
+    const map = L.map('map', {
+        center: [36.2, 127.8], 
+        zoom: 7
+    });
+
+    L.tileLayer('https://tiles.osm.kr/hot/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3. 실시간 초단기 날씨 요청 함수
+    async function fetchWeather(nx, ny) {
+        const now = new Date();
+        // 기상청 데이터는 매시각 40분 이후에 안정적으로 생성됨
+        if (now.getMinutes() < 40) {
+            now.setHours(now.getHours() - 1);
+        }
+        const base_date = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+        const base_time = String(now.getHours()).padStart(2, '0') + "00";
+
+        const url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${WEATHER_API_KEY}&numOfRows=10&pageNo=1&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${nx}&ny=${ny}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // 요청하신 데이터 구조 검증 로직 적용
+            if (data.response.header.resultCode === '00') {
+                const items = data.response.body.items.item;
+                const info = {};
+                items.forEach(item => { 
+                    info[item.category] = item.obsrValue; 
+                });
+                return info;
+            }
+            return null;
+        } catch (error) {
+            console.error('API 호출 실패:', error);
+            return null;
+        }
+    }
+
+    // 4. 마커 생성 및 클릭 이벤트
+    regions.forEach(region => {
+        const marker = L.circleMarker([region.lat, region.lon], {
+            radius: 6,
+            fillColor: "#e74c3c",
+            color: "#fff",
+            weight: 1.5,
+            fillOpacity: 0.9
+        }).addTo(map);
+
+        marker.bindTooltip(region.name);
+
+        marker.on('click', async function (e) {
+            const popup = L.popup({ minWidth: 200 })
+                .setLatLng(e.latlng)
+                .setContent('<div class="loading">실시간 날씨 로딩 중...</div>')
+                .openOn(map);
+
+            const info = await fetchWeather(region.nx, region.ny);
+            
+            if (info) {
+                // 기온 처리 및 의상 추천 로직
+                const temp = parseFloat(info['T1H']);
+                const recommend = temp <= 5 ? "🧥 매우 춥습니다! 두꺼운 패딩 추천" : 
+                                  temp <= 12 ? "🧥 쌀쌀해요. 코트나 경량패딩" : 
+                                  "👕 가벼운 자켓이 적당해요";
+
+                // 날씨 상태 딕셔너리 적용
+                const ptyDict = {"0": "맑음☀️", "1": "비☔", "2": "비/눈🌨️", "3": "눈❄️", "5": "빗방울💧"};
+                const weatherStatus = ptyDict[info['PTY']] || "정보없음";
+
+                const html = `
+                    <div class="weather-popup">
+                        <div class="popup-header">
+                            <span>📍 ${region.name}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">현재날씨</span>
+                            <span class="info-value">${weatherStatus}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">기온</span>
+                            <span class="info-value">${temp}°C</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">습도</span>
+                            <span class="info-value">${info['REH']}%</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">풍속</span>
+                            <span class="info-value">${info['WSD']} m/s</span>
+                        </div>
+                        <div class="recommend-box">
+                            <strong>의상 추천:</strong><br>${recommend}
+                        </div>
+                    </div>`;
+                popup.setContent(html);
+            } else {
+                popup.setContent('<div class="loading">날씨 데이터를 불러올 수 없습니다.</div>');
+            }
+        });
+    });
+</script>
+</body>
+</html>
