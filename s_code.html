@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정렬 알고리즘 시각화 파이썬 코드 모음</title>
+<style>
+    *{box-sizing:border-box;}
+    body{
+        margin:0;
+        font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;
+        background:#f4f7fb;
+        color:#1f2937;
+        line-height:1.7;
+    }
+    header{
+        background:linear-gradient(135deg,#1e3a8a,#2563eb);
+        color:white;
+        padding:32px 24px;
+        text-align:center;
+    }
+    header h1{margin:0;font-size:2.1rem;}
+    header p{margin:10px 0 0;font-size:1rem;opacity:.95;}
+    .layout{display:flex;min-height:calc(100vh - 130px);}
+    nav{
+        width:260px;
+        background:#111827;
+        color:white;
+        padding:18px;
+        position:sticky;
+        top:0;
+        height:100vh;
+        overflow-y:auto;
+    }
+    nav h2{font-size:1.05rem;margin:0 0 14px;color:#bfdbfe;}
+    nav a{
+        display:block;
+        color:#e5e7eb;
+        text-decoration:none;
+        padding:10px 12px;
+        margin:6px 0;
+        border-radius:10px;
+        background:#1f2937;
+        transition:.2s;
+        font-size:.94rem;
+    }
+    nav a:hover{background:#2563eb;transform:translateX(3px);}
+    main{flex:1;padding:28px;max-width:1200px;margin:auto;}
+    section{
+        background:white;
+        border-radius:18px;
+        padding:28px;
+        margin-bottom:28px;
+        box-shadow:0 8px 24px rgba(15,23,42,.08);
+    }
+    h2{border-left:8px solid #2563eb;padding-left:12px;color:#1e3a8a;}
+    h3{color:#374151;margin-top:24px;}
+    .badge{
+        display:inline-block;
+        background:#dbeafe;
+        color:#1e40af;
+        padding:4px 10px;
+        border-radius:999px;
+        font-weight:bold;
+        font-size:.85rem;
+        margin-right:6px;
+    }
+    .note{
+        background:#eff6ff;
+        border-left:5px solid #2563eb;
+        padding:14px 16px;
+        border-radius:10px;
+        margin:16px 0;
+    }
+    .warning{
+        background:#fff7ed;
+        border-left:5px solid #f97316;
+        padding:14px 16px;
+        border-radius:10px;
+        margin:16px 0;
+    }
+    pre{
+        background:#0f172a;
+        color:#e5e7eb;
+        padding:18px;
+        border-radius:14px;
+        overflow-x:auto;
+        font-size:.9rem;
+        line-height:1.55;
+        border:1px solid #334155;
+    }
+    code{font-family:Consolas,'Courier New',monospace;}
+    table{border-collapse:collapse;width:100%;margin:14px 0;}
+    th,td{border:1px solid #d1d5db;padding:10px;text-align:center;}
+    th{background:#e0ecff;color:#1e3a8a;}
+    .btn-copy{
+        background:#2563eb;
+        color:white;
+        border:none;
+        border-radius:9px;
+        padding:8px 12px;
+        cursor:pointer;
+        margin-bottom:8px;
+    }
+    .btn-copy:hover{background:#1d4ed8;}
+    footer{text-align:center;color:#6b7280;padding:28px;}
+    @media(max-width:900px){
+        .layout{display:block;}
+        nav{width:100%;height:auto;position:relative;}
+        main{padding:16px;}
+        section{padding:18px;}
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>정렬 알고리즘 시각화 파이썬 코드 모음</h1>
+    <p>Bubble · Selection · Insertion · Merge · Quick · Heap Sort</p>
+</header>
+<div class="layout">
+<nav>
+    <h2>목차</h2>
+    <a href="#intro">실행 안내</a>
+    <a href="#bubble">1. 버블 정렬</a>
+    <a href="#selection">2. 선택 정렬</a>
+    <a href="#insertion">3. 삽입 정렬</a>
+    <a href="#merge">4. 병합 정렬</a>
+    <a href="#quick">5. 퀵 정렬</a>
+    <a href="#heap">6. 힙 정렬</a>
+    <a href="#summary">정렬 비교표</a>
+</nav>
+<main>
+<section id="intro">
+    <h2>실행 안내</h2>
+    <p>이 HTML 파일은 정렬 알고리즘을 <b>막대 그래프 애니메이션</b>으로 확인할 수 있는 파이썬 예시 코드를 모아 놓은 학습 자료입니다.</p>
+    <div class="note">
+        <b>IDLE Python 실행:</b> 아래 코드에서 <code>from IPython.display import HTML</code>, <code>plt.close(fig)</code>, <code>HTML(anim.to_jshtml())</code> 부분은 사용하지 않고, 마지막에 <code>plt.show()</code>를 사용합니다.
+    </div>
+    <div class="note">
+        <b>Google Colab 실행:</b> <code>from IPython.display import HTML</code>을 사용하고, 마지막에 <code>plt.close(fig)</code>, <code>HTML(anim.to_jshtml())</code>를 사용합니다.
+    </div>
+    <h3>공통 설치</h3>
+<pre><code>pip install matplotlib</code></pre>
+</section>
+
+<section id="bubble">
+<h2>1. 버블 정렬 Bubble Sort 시각화 코드</h2>
+<p><span class="badge">원리</span> 인접한 두 값을 비교하여 큰 값을 오른쪽으로 보내는 방식입니다.</p>
+<button class="btn-copy" onclick="copyCode('code-bubble')">코드 복사</button>
+<pre><code id="code-bubble">import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# IDLE에서는 아래 줄을 사용하지 않습니다.
+# from IPython.display import HTML
+
+# -----------------------------
+# 랜덤 데이터 생성
+# -----------------------------
+data = [random.randint(10, 100) for _ in range(10)]
+
+# -----------------------------
+# 버블 정렬 과정 저장
+# -----------------------------
+def bubble_sort_frames(arr):
+
+    frames = []
+    n = len(arr)
+
+    for i in range(n):
+        for j in range(n - i - 1):
+
+            # 비교 상태 저장
+            frames.append((arr.copy(), j, j + 1, False))
+
+            if arr[j] &gt; arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
+                # 교환 상태 저장
+                frames.append((arr.copy(), j, j + 1, True))
+
+    frames.append((arr.copy(), -1, -1, False))
+    return frames
+
+frames = bubble_sort_frames(data.copy())
+
+# -----------------------------
+# 그래프 생성
+# -----------------------------
+fig, ax = plt.subplots(figsize=(10, 5))
+bars = ax.bar(range(len(data)), data)
+
+ax.set_ylim(0, max(data) + 20)
+ax.set_title("Bubble Sort Visualization")
+ax.set_xlabel("Index")
+ax.set_ylabel("Value")
+
+# -----------------------------
+# 업데이트 함수
+# -----------------------------
+def update(frame):
+
+    arr, idx1, idx2, swapped = frame
+
+    for bar, value in zip(bars, arr):
+        bar.set_height(value)
+        bar.set_color("skyblue")
+
+    if idx1 != -1:
+        bars[idx1].set_color("red")
+        bars[idx2].set_color("orange")
+
+    if swapped:
+        ax.set_title("Bubble Sort - Swap")
+    else:
+        ax.set_title("Bubble Sort - Compare")
+
+    return bars
+
+anim = animation.FuncAnimation(
+    fig,
+    update,
+    frames=frames,
+    interval=600,
+    repeat=False
+)
+
+# IDLE Python 실행용
+plt.show()
+
+# Google Colab 실행용으로 사용할 때는 위 plt.show() 대신 아래 3줄 사용
+# from IPython.display import HTML
+# plt.close(fig)
+# HTML(anim.to_jshtml())</code></pre>
+</section>
+
+<section id="selection">
+<h2>2. 선택 정렬 Selection Sort 시각화 코드</h2>
+<p><span class="badge">원리</span> 남은 데이터 중 가장 작은 값을 찾아 앞쪽으로 이동합니다.</p>
+<button class="btn-copy" onclick="copyCode('code-selection')">코드 복사</button>
+<pre><code id="code-selection">import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# -----------------------------
+# 랜덤 데이터 생성
+# -----------------------------
+data = [random.randint(10, 100) for _ in range(10)]
+
+# -----------------------------
+# 선택 정렬 과정 저장
+# -----------------------------
+def selection_sort_frames(arr):
+
+    frames = []
+    n = len(arr)
+
+    for i in range(n):
+        min_idx = i
+
+        # 현재 위치 저장
+        frames.append((arr.copy(), i, min_idx, -1, False))
+
+        for j in range(i + 1, n):
+
+            # 비교 상태 저장
+            frames.append((arr.copy(), i, min_idx, j, False))
+
+            if arr[j] &lt; arr[min_idx]:
+                min_idx = j
+
+                # 최소값 후보 변경 상태 저장
+                frames.append((arr.copy(), i, min_idx, j, False))
+
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+
+        # 교환 후 상태 저장
+        frames.append((arr.copy(), i, min_idx, -1, True))
+
+    return frames
+
+frames = selection_sort_frames(data.copy())
+
+# -----------------------------
+# 그래프 생성
+# -----------------------------
+fig, ax = plt.subplots(figsize=(10, 5))
+bars = ax.bar(range(len(data)), data)
+
+ax.set_ylim(0, max(data) + 20)
+ax.set_title("Selection Sort Visualization")
+ax.set_xlabel("Index")
+ax.set_ylabel("Value")
+
+# -----------------------------
+# 업데이트 함수
+# -----------------------------
+def update(frame):
+
+    arr, current_idx, min_idx, compare_idx, swapped = frame
+
+    for bar, value in zip(bars, arr):
+        bar.set_height(value)
+        bar.set_color("skyblue")
+
+    bars[current_idx].set_color("green")
+    bars[min_idx].set_color("red")
+
+    if compare_idx != -1:
+        bars[compare_idx].set_color("orange")
+
+    if swapped:
+        ax.set_title("Selection Sort - Swap")
+    else:
+        ax.set_title("Selection Sort - Finding Minimum")
+
+    return bars
+
+anim = animation.FuncAnimation(
+    fig,
+    update,
+    frames=frames,
+    interval=700,
+    repeat=False
+)
+
+# IDLE Python 실행용
+plt.show()
+
+# Google Colab 실행용
+# from IPython.display import HTML
+# plt.close(fig)
+# HTML(anim.to_jshtml())</code></pre>
+</section>
+
+<section id="insertion">
+<h2>3. 삽입 정렬 Insertion Sort 시각화 코드</h2>
+<p><span class="badge">원리</span> 왼쪽의 정렬된 부분에 새 값을 알맞은 위치에 삽입합니다.</p>
+<button class="btn-copy" onclick="copyCode('code-insertion')">코드 복사</button>
+<pre><code id="code-insertion">import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# -----------------------------
+# 랜덤 데이터 생성
+# -----------------------------
+data = [random.randint(10, 100) for _ in range(10)]
+
+# -----------------------------
+# 삽입 정렬 과정 저장
+# -----------------------------
+def insertion_sort_frames(arr):
+
+    frames = []
+    n = len(arr)
+
+    for i in range(1, n):
+
+        key = arr[i]
+        j = i - 1
+
+        # 현재 삽입 대상 저장
+        frames.append((arr.copy(), i, j, False))
+
+        while j &gt;= 0 and arr[j] &gt; key:
+
+            arr[j + 1] = arr[j]
+
+            # 이동 과정 저장
+            frames.append((arr.copy(), i, j, False))
+
+            j -= 1
+
+        arr[j + 1] = key
+
+        # 삽입 완료 저장
+        frames.append((arr.copy(), i, j + 1, True))
+
+    return frames
+
+frames = insertion_sort_frames(data.copy())
+
+# -----------------------------
+# 그래프 생성
+# -----------------------------
+fig, ax = plt.subplots(figsize=(10, 5))
+bars = ax.bar(range(len(data)), data)
+
+ax.set_ylim(0, max(data) + 20)
+ax.set_title("Insertion Sort Visualization")
+ax.set_xlabel("Index")
+ax.set_ylabel("Value")
+
+# -----------------------------
+# 업데이트 함수
+# -----------------------------
+def update(frame):
+
+    arr, current_idx, compare_idx, inserted = frame
+
+    for bar, value in zip(bars, arr):
+        bar.set_height(value)
+        bar.set_color("skyblue")
+
+    bars[current_idx].set_color("red")
+
+    if compare_idx &gt;= 0:
+        bars[compare_idx].set_color("orange")
+
+    if inserted:
+        bars[current_idx].set_color("green")
+        ax.set_title("Insertion Sort - Insert Complete")
+    else:
+        ax.set_title("Insertion Sort - Shifting Values")
+
+    return bars
+
+anim = animation.FuncAnimation(
+    fig,
+    update,
+    frames=frames,
+    interval=700,
+    repeat=False
+)
+
+# IDLE Python 실행용
+plt.show()
+
+# Google Colab 실행용
+# from IPython.display import HTML
+# plt.close(fig)
+# HTML(anim.to_jshtml())</code></pre>
+</section>
+
+<section id="merge">
+<h2>4. 병합 정렬 Merge Sort 시각화 코드</h2>
+<p><span class="badge">원리</span> 데이터를 반으로 나눈 뒤 정렬하면서 다시 병합합니다.</p>
+<button class="btn-copy" onclick="copyCode('code-merge')">코드 복사</button>
+<pre><code id="code-merge">import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# -----------------------------
+# 랜덤 데이터 생성
+# -----------------------------
+data = [random.randint(10, 100) for _ in range(12)]
+
+# -----------------------------
+# 병합 정렬 과정 저장
+# -----------------------------
+frames = []
+
+def merge_sort(arr, left, right):
+
+    if left &gt;= right:
+        return
+
+    mid = (left + right) // 2
+
+    merge_sort(arr, left, mid)
+    merge_sort(arr, mid + 1, right)
+
+    merge(arr, left, mid, right)
+
+
+def merge(arr, left, mid, right):
+
+    left_part = arr[left:mid + 1]
+    right_part = arr[mid + 1:right + 1]
+
+    i = 0
+    j = 0
+    k = left
+
+    while i &lt; len(left_part) and j &lt; len(right_part):
+
+        frames.append((arr.copy(), left, right, k))
+
+        if left_part[i] &lt;= right_part[j]:
+            arr[k] = left_part[i]
+            i += 1
+        else:
+            arr[k] = right_part[j]
+            j += 1
+
+        frames.append((arr.copy(), left, right, k))
+        k += 1
+
+    while i &lt; len(left_part):
+        arr[k] = left_part[i]
+        frames.append((arr.copy(), left, right, k))
+        i += 1
+        k += 1
+
+    while j &lt; len(right_part):
+        arr[k] = right_part[j]
+        frames.append((arr.copy(), left, right, k))
+        j += 1
+        k += 1
+
+# -----------------------------
+# 병합 정렬 실행
+# -----------------------------
+arr = data.copy()
+merge_sort(arr, 0, len(arr) - 1)
+
+# -----------------------------
+# 그래프 생성
+# -----------------------------
+fig, ax = plt.subplots(figsize=(12, 5))
+bars = ax.bar(range(len(data)), data)
+
+ax.set_ylim(0, max(data) + 20)
+ax.set_title("Merge Sort Visualization")
+ax.set_xlabel("Index")
+ax.set_ylabel("Value")
+
+# -----------------------------
+# 업데이트 함수
+# -----------------------------
+def update(frame):
+
+    arr, left, right, current = frame
+
+    for bar, value in zip(bars, arr):
+        bar.set_height(value)
+        bar.set_color("skyblue")
+
+    for i in range(left, right + 1):
+        bars[i].set_color("orange")
+
+    bars[current].set_color("red")
+
+    ax.set_title(f"Merge Sort : Merging [{left} ~ {right}]")
+
+    return bars
+
+anim = animation.FuncAnimation(
+    fig,
+    update,
+    frames=frames,
+    interval=600,
+    repeat=False
+)
+
+# IDLE Python 실행용
+plt.show()
+
+# Google Colab 실행용
+# from IPython.display import HTML
+# plt.close(fig)
+# HTML(anim.to_jshtml())</code></pre>
+</section>
+
+<section id="quick">
+<h2>5. 퀵 정렬 Quick Sort 시각화 코드</h2>
+<p><span class="badge">원리</span> 피벗을 기준으로 작은 값과 큰 값을 나누어 정렬합니다.</p>
+<button class="btn-copy" onclick="copyCode('code-quick')">코드 복사</button>
+<pre><code id="code-quick">import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# -----------------------------
+# 랜덤 데이터 생성
+# -----------------------------
+data = [random.randint(10, 100) for _ in range(12)]
+
+# -----------------------------
+# 퀵 정렬 과정 저장
+# -----------------------------
+frames = []
+
+def quick_sort(arr, low, high):
+
+    if low &lt; high:
+
+        pivot_index = partition(arr, low, high)
+
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+
+
+def partition(arr, low, high):
+
+    pivot = arr[high]
+    i = low - 1
+
+    frames.append((arr.copy(), low, high, high, -1))
+
+    for j in range(low, high):
+
+        frames.append((arr.copy(), low, high, high, j))
+
+        if arr[j] &lt; pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+
+            frames.append((arr.copy(), low, high, high, j))
+
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+
+    frames.append((arr.copy(), low, high, i + 1, -1))
+
+    return i + 1
+
+# -----------------------------
+# 퀵 정렬 실행
+# -----------------------------
+arr = data.copy()
+quick_sort(arr, 0, len(arr) - 1)
+
+# -----------------------------
+# 그래프 생성
+# -----------------------------
+fig, ax = plt.subplots(figsize=(12, 5))
+bars = ax.bar(range(len(data)), data)
+
+ax.set_ylim(0, max(data) + 20)
+ax.set_title("Quick Sort Visualization")
+ax.set_xlabel("Index")
+ax.set_ylabel("Value")
+
+# -----------------------------
+# 업데이트 함수
+# -----------------------------
+def update(frame):
+
+    arr, low, high, pivot_idx, compare_idx = frame
+
+    for bar, value in zip(bars, arr):
+        bar.set_height(value)
+        bar.set_color("skyblue")
+
+    for i in range(low, high + 1):
+        bars[i].set_color("orange")
+
+    bars[pivot_idx].set_color("red")
+
+    if compare_idx != -1:
+        bars[compare_idx].set_color("green")
+
+    ax.set_title(f"Quick Sort : Partition [{low} ~ {high}]")
+
+    return bars
+
+anim = animation.FuncAnimation(
+    fig,
+    update,
+    frames=frames,
+    interval=600,
+    repeat=False
+)
+
+# IDLE Python 실행용
+plt.show()
+
+# Google Colab 실행용
+# from IPython.display import HTML
+# plt.close(fig)
+# HTML(anim.to_jshtml())</code></pre>
+</section>
+
+<section id="heap">
+<h2>6. 힙 정렬 Heap Sort 시각화 코드</h2>
+<p><span class="badge">원리</span> 최대 힙을 만든 뒤 가장 큰 값을 뒤로 보내며 정렬합니다.</p>
+<button class="btn-copy" onclick="copyCode('code-heap')">코드 복사</button>
+<pre><code id="code-heap">import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# -----------------------------
+# 랜덤 데이터 생성
+# -----------------------------
+data = [random.randint(10, 100) for _ in range(12)]
+
+# -----------------------------
+# 힙 정렬 과정 저장
+# -----------------------------
+frames = []
+
+def heapify(arr, n, i):
+
+    largest = i
+    left = 2 * i + 1
+    right = 2 * i + 2
+
+    if left &lt; n and arr[left] &gt; arr[largest]:
+        largest = left
+
+    if right &lt; n and arr[right] &gt; arr[largest]:
+        largest = right
+
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+
+        frames.append((arr.copy(), i, largest, n))
+
+        heapify(arr, n, largest)
+
+
+def heap_sort(arr):
+
+    n = len(arr)
+
+    # 최대 힙 생성
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+
+    # 루트 값을 뒤로 보내며 정렬
+    for i in range(n - 1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+
+        frames.append((arr.copy(), 0, i, i))
+
+        heapify(arr, i, 0)
+
+# -----------------------------
+# 힙 정렬 실행
+# -----------------------------
+arr = data.copy()
+heap_sort(arr)
+
+# -----------------------------
+# 그래프 생성
+# -----------------------------
+fig, ax = plt.subplots(figsize=(12, 5))
+bars = ax.bar(range(len(data)), data)
+
+ax.set_ylim(0, max(data) + 20)
+ax.set_title("Heap Sort Visualization")
+ax.set_xlabel("Index")
+ax.set_ylabel("Value")
+
+# -----------------------------
+# 업데이트 함수
+# -----------------------------
+def update(frame):
+
+    arr, idx1, idx2, heap_size = frame
+
+    for i, (bar, value) in enumerate(zip(bars, arr)):
+        bar.set_height(value)
+
+        if i &gt;= heap_size:
+            bar.set_color("lightgreen")
+        else:
+            bar.set_color("skyblue")
+
+    bars[idx1].set_color("red")
+    bars[idx2].set_color("orange")
+
+    ax.set_title(f"Heap Sort : Heap Size = {heap_size}")
+
+    return bars
+
+anim = animation.FuncAnimation(
+    fig,
+    update,
+    frames=frames,
+    interval=700,
+    repeat=False
+)
+
+# IDLE Python 실행용
+plt.show()
+
+# Google Colab 실행용
+# from IPython.display import HTML
+# plt.close(fig)
+# HTML(anim.to_jshtml())</code></pre>
+</section>
+
+<section id="summary">
+<h2>정렬 알고리즘 비교표</h2>
+<table>
+<tr>
+    <th>정렬</th>
+    <th>평균 시간복잡도</th>
+    <th>최악 시간복잡도</th>
+    <th>안정 정렬</th>
+    <th>특징</th>
+</tr>
+<tr>
+    <td>버블 정렬</td>
+    <td>O(n²)</td>
+    <td>O(n²)</td>
+    <td>O</td>
+    <td>인접한 값 비교</td>
+</tr>
+<tr>
+    <td>선택 정렬</td>
+    <td>O(n²)</td>
+    <td>O(n²)</td>
+    <td>X</td>
+    <td>최솟값 선택</td>
+</tr>
+<tr>
+    <td>삽입 정렬</td>
+    <td>O(n²)</td>
+    <td>O(n²)</td>
+    <td>O</td>
+    <td>정렬된 부분에 삽입</td>
+</tr>
+<tr>
+    <td>병합 정렬</td>
+    <td>O(n log n)</td>
+    <td>O(n log n)</td>
+    <td>O</td>
+    <td>분할 후 병합</td>
+</tr>
+<tr>
+    <td>퀵 정렬</td>
+    <td>O(n log n)</td>
+    <td>O(n²)</td>
+    <td>X</td>
+    <td>피벗 기준 분할</td>
+</tr>
+<tr>
+    <td>힙 정렬</td>
+    <td>O(n log n)</td>
+    <td>O(n log n)</td>
+    <td>X</td>
+    <td>최대 힙 활용</td>
+</tr>
+</table>
+<div class="warning">
+    <b>참고:</b> Colab에서 애니메이션이 보이지 않으면 각 코드 마지막의 <code>plt.show()</code>를 주석 처리하고, <code>HTML(anim.to_jshtml())</code> 방식을 사용하세요.
+</div>
+</section>
+</main>
+</div>
+<footer>
+    정렬 알고리즘 시각화 학습 자료 · Python Matplotlib Animation
+</footer>
+<script>
+function copyCode(id){
+    const code = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(code).then(()=>{
+        alert('코드가 복사되었습니다.');
+    });
+}
+</script>
+</body>
+</html>
