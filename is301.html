@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>301 알고리즘 학습 평가</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:linear-gradient(135deg,#eef2ff,#f8fafc);color:#172033}
+header{position:sticky;top:0;z-index:10;background:#4338ca;color:white;padding:14px 22px;box-shadow:0 4px 14px #0002}
+header h1{margin:0;font-size:22px}
+.container{max-width:1180px;margin:0 auto;padding:20px}
+.card{background:white;border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 8px 25px #33415522;border:1px solid #e2e8f0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{font-weight:700}
+input[type=text]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;font-size:16px}
+button{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer;background:#4338ca;color:white;margin:4px}
+button.secondary{background:#0f766e}
+button.gray{background:#475569}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#e0e7ff;color:#3730a3;font-weight:800;font-size:13px}
+pre{background:#0f172a;color:#e5e7eb;border-radius:14px;padding:16px;overflow:auto;line-height:1.55;font-size:15px}
+.question{border-left:6px solid #6366f1}
+.options{display:grid;gap:8px;margin-top:12px}
+.option{padding:10px 12px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;cursor:pointer}
+.option:hover{background:#eef2ff}
+.result{margin-top:12px;padding:12px;border-radius:12px;display:none}
+.correct{background:#dcfce7;border:1px solid #86efac}
+.wrong{background:#fee2e2;border:1px solid #fca5a5}
+.summary{font-size:18px;line-height:1.8}
+.small{font-size:13px;color:#64748b}
+.extract{line-height:1.8}
+.kbox{background:#f1f5f9;border-radius:12px;padding:12px;margin:10px 0}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>Ⅲ-1 알고리즘의 개요 · 코드 추출 상세 설명 + 자동 채점 퀴즈</h1></header>
+<div class="container">
+<section class="card">
+<span class="badge">학습자 정보</span>
+<div class="grid" style="margin-top:12px">
+<div><label>학번</label><input id="studentId" type="text" placeholder="예: 1101"></div>
+<div><label>이름</label><input id="studentName" type="text" placeholder="예: 홍길동"></div>
+</div>
+<p class="small">제출하면 파일명 <b>학번_이름_점수_301알고리즘_응시시각.txt</b> 형식의 결과 파일이 저장됩니다.</p>
+</section>
+
+<section class="card extract">
+<h2>1. 코드 추출 상세 설명</h2>
+<div class="kbox"><b>알고리즘의 뜻</b><br>알고리즘은 문제를 해결하기 위한 논리적인 절차와 방법을 체계적으로 표현한 것입니다. 같은 문제라도 여러 해결 방법이 있을 수 있으므로 문제 성격에 맞는 전략 선택이 중요합니다.</div>
+<div class="kbox"><b>탐색 기반 알고리즘</b><br>가능한 해들을 탐색 공간으로 보고 그 안에서 해를 찾아갑니다. 대표 전략에는 <b>탐욕법</b>과 <b>분기 한정법</b>이 있습니다.</div>
+<div class="kbox"><b>관계 기반 알고리즘</b><br>문제를 작은 부분 문제로 나누고 부분 문제 사이의 관계를 분석합니다. 대표 전략에는 <b>분할 정복법</b>과 <b>동적 계획법</b>이 있습니다.</div>
+<div class="kbox"><b>알고리즘 복잡도</b><br>시간 복잡도는 연산 수의 증가 양상을, 공간 복잡도는 메모리 사용량을 의미합니다. 빅오 표기법은 입력 크기 n이 커질 때 실행 시간이 어떻게 증가하는지 단순화하여 나타냅니다.</div>
+<h3>예시 코드 1: 반복문으로 1부터 n까지 합 구하기</h3>
+<pre>def total(n):
+    s = 0
+    for i in range(1, n + 1):
+        s += i
+    return s
+
+print(total(5))</pre>
+<p>이 코드는 1부터 n까지 차례대로 더합니다. n이 커지면 반복 횟수도 n에 비례해 커지므로 시간 복잡도는 O(n)입니다.</p>
+<h3>예시 코드 2: 공식으로 1부터 n까지 합 구하기</h3>
+<pre>def fast_sum(n):
+    return n * (n + 1) // 2
+
+print(fast_sum(100))</pre>
+<p>이 코드는 반복문 없이 공식을 사용합니다. 입력 n이 커져도 핵심 계산 횟수는 거의 일정하므로 O(1)로 볼 수 있습니다.</p>
+</section>
+
+<section id="quiz"></section>
+
+<section class="card">
+<h2>제출 및 결과 저장</h2>
+<button onclick="grade()">채점하기</button>
+<button class="secondary" onclick="downloadResult()">TXT 저장</button>
+<button class="gray" onclick="resetQuiz()">다시 풀기</button>
+<div id="final" class="summary"></div>
+</section>
+</div>
+
+<script>
+const questions = [{"type": "ox", "q": "알고리즘은 문제를 해결하기 위한 논리적 절차와 방법을 체계적으로 표현한 것이다.", "options": ["O", "X"], "answer": ["O"], "exp": "알고리즘은 문제 해결을 위한 절차와 방법을 명확하게 표현한 것이다."}, {"type": "ox", "q": "알고리즘은 반드시 한 가지 방법만 존재하며, 같은 문제에는 다른 해결 전략을 적용할 수 없다.", "options": ["O", "X"], "answer": ["X"], "exp": "같은 문제도 탐욕법, 분기 한정법, 분할 정복법, 동적 계획법 등 다양한 전략으로 접근할 수 있다."}, {"type": "ox", "q": "탐색 기반 알고리즘은 가능한 해들을 탐색 공간으로 보고 그 안에서 해를 찾는 방식이다.", "options": ["O", "X"], "answer": ["O"], "exp": "탐색 기반 알고리즘은 가능한 선택지를 탐색하며 최선의 해를 찾는 데 초점을 둔다."}, {"type": "ox", "q": "관계 기반 알고리즘은 문제의 부분과 그 관계를 분석하여 전체 문제를 해결하는 방식이다.", "options": ["O", "X"], "answer": ["O"], "exp": "분할 정복법과 동적 계획법은 관계 기반 알고리즘의 대표 전략이다."}, {"type": "ox", "q": "탐욕법은 매 순간 가장 좋아 보이는 선택을 하는 전략이다.", "options": ["O", "X"], "answer": ["O"], "exp": "탐욕법은 현재 단계에서 최선이라고 판단되는 선택을 반복한다."}, {"type": "ox", "q": "분기 한정법은 모든 경로를 끝까지 무조건 탐색하는 전략이다.", "options": ["O", "X"], "answer": ["X"], "exp": "분기 한정법은 불필요하거나 조건에 맞지 않는 경로를 배제하여 탐색 공간을 줄인다."}, {"type": "ox", "q": "분할 정복법은 문제를 작은 문제로 나누어 해결한 뒤 결과를 결합하는 전략이다.", "options": ["O", "X"], "answer": ["O"], "exp": "분할 정복법은 큰 문제를 작은 문제로 분해해 해결하고 이를 합쳐 전체 문제를 해결한다."}, {"type": "ox", "q": "동적 계획법은 이전에 계산한 해답을 기억해 다시 활용하는 전략이다.", "options": ["O", "X"], "answer": ["O"], "exp": "동적 계획법은 반복되는 부분 문제의 결과를 저장하여 중복 계산을 줄인다."}, {"type": "ox", "q": "시간 복잡도는 알고리즘이 사용하는 메모리의 양을 뜻한다.", "options": ["O", "X"], "answer": ["X"], "exp": "시간 복잡도는 수행해야 하는 연산 수 또는 실행 시간의 증가 양상을 뜻한다. 메모리 사용량은 공간 복잡도이다."}, {"type": "ox", "q": "빅오 표기법은 입력 크기 n이 커질 때 알고리즘 실행 시간이 어떻게 증가하는지 단순화해 나타낸다.", "options": ["O", "X"], "answer": ["O"], "exp": "빅오 표기법은 상수와 덜 중요한 항을 생략해 입력 크기에 따른 증가 추세를 표현한다."}, {"type": "mc", "q": "다음 중 알고리즘에 대한 옳은 설명을 모두 고르시오. (정답 3개)", "options": ["알고리즘은 문제 해결을 위한 체계적인 절차이다.", "같은 문제라도 여러 알고리즘으로 해결할 수 있다.", "알고리즘은 항상 가장 빠른 실행 시간을 보장한다.", "문제의 성격에 따라 적절한 알고리즘을 선택해야 한다.", "알고리즘은 컴퓨터 프로그램에서만 사용되고 일상생활에는 적용되지 않는다."], "answer": [0, 1, 3], "exp": "알고리즘은 문제 해결 절차이며, 같은 문제에도 여러 방법이 있을 수 있다. 따라서 문제 특성에 맞는 전략 선택이 중요하다.", "multi": true, "code": null}, {"type": "mc", "q": "다음 중 알고리즘 전략에 대한 옳은 설명을 모두 고르시오. (정답 3개)", "options": ["탐욕법은 매 순간 최선의 선택을 하는 방식이다.", "분기 한정법은 불필요한 경로를 배제할 수 있다.", "분할 정복법은 큰 문제를 작은 문제로 나누어 해결한다.", "동적 계획법은 이전 결과를 절대 저장하지 않는다.", "관계 기반 알고리즘은 가능한 해 전체를 무조건 나열하는 것만 의미한다."], "answer": [0, 1, 2], "exp": "탐욕법, 분기 한정법, 분할 정복법의 핵심 설명이 옳다. 동적 계획법은 이전 결과를 저장해 활용한다.", "multi": true, "code": null}, {"type": "mc", "q": "알고리즘의 조건으로 가장 적절한 것은?", "options": ["유한한 단계 안에서 종료될 수 있어야 한다.", "단계가 많을수록 항상 좋은 알고리즘이다.", "입력은 없어야만 한다.", "결과는 출력되지 않아도 된다.", "각 단계는 모호할수록 유연해서 좋다."], "answer": [0], "exp": "알고리즘은 유한성, 명확성, 수행 가능성, 입출력 등의 조건을 만족해야 한다.", "multi": false, "code": null}, {"type": "mc", "q": "다음 중 탐색 기반 알고리즘에 해당하는 전략은?", "options": ["탐욕법", "분할 정복법", "동적 계획법", "단순 저장법", "문서 작성법"], "answer": [0], "exp": "탐욕법과 분기 한정법은 가능한 해를 탐색 공간에서 찾는 탐색 기반 전략이다.", "multi": false, "code": null}, {"type": "mc", "q": "다음 중 틀린 설명을 고르시오.", "options": ["시간 복잡도는 연산 수의 증가 양상을 분석한다.", "공간 복잡도는 메모리 사용량과 관련된다.", "빅오 표기법은 알고리즘 성능 비교에 활용된다.", "O(1)은 입력 크기가 커져도 실행 시간이 일정한 경우를 나타낼 수 있다.", "시간 복잡도는 항상 실제 초 단위 실행 시간만을 의미한다."], "answer": [4], "exp": "시간 복잡도는 실제 초 단위 시간만이 아니라 입력 크기에 따른 연산 수 증가 양상을 분석한다.", "multi": false, "code": null}, {"type": "mc", "q": "다음 중 틀린 설명을 고르시오.", "options": ["분할 정복법은 문제를 작은 문제로 분해한다.", "동적 계획법은 이전 해답을 기억해 재활용한다.", "분기 한정법은 조건에 맞지 않는 경로를 배제할 수 있다.", "탐욕법은 매 순간의 최선 선택을 사용한다.", "동적 계획법은 탐색 공간의 모든 경로를 아무 기준 없이 끝까지 탐색하는 방법이다."], "answer": [4], "exp": "동적 계획법은 반복되는 부분 문제의 결과를 저장하고 재활용하는 관계 기반 전략이다.", "multi": false, "code": null}, {"type": "mc", "q": "예시 코드에 대한 옳은 설명을 고르시오.", "options": ["출력 결과는 15이다.", "반복문은 0부터 5까지 실행된다.", "이 코드는 리스트를 정렬한다.", "total(5)는 5만 반환한다.", "반복문이 없으므로 시간 복잡도는 O(1)이다."], "answer": [0], "exp": "1부터 5까지 더하므로 1+2+3+4+5 = 15가 출력된다. 반복문이 n에 비례해 실행되므로 시간 복잡도는 O(n)이다.", "multi": false, "code": "def total(n):\n    s = 0\n    for i in range(1, n + 1):\n        s += i\n    return s\n\nprint(total(5))"}, {"type": "mc", "q": "예시 코드에 대한 틀린 설명을 고르시오.", "options": ["1부터 n까지의 합을 공식으로 계산한다.", "fast_sum(100)의 결과는 5050이다.", "반복문 없이 한 번의 계산으로 결과를 구한다.", "입력 n이 커져도 핵심 계산 횟수는 거의 일정하므로 O(1)로 볼 수 있다.", "이 코드는 n번 반복하며 모든 수를 하나씩 더한다."], "answer": [4], "exp": "이 코드는 반복문을 사용하지 않고 합 공식으로 계산한다. 따라서 n번 반복한다는 설명은 틀렸다.", "multi": false, "code": "def fast_sum(n):\n    return n * (n + 1) // 2\n\nprint(fast_sum(100))"}, {"type": "mc", "q": "빈 줄에 들어갈 코드로 가장 적합한 것을 고르시오.", "options": ["best = s", "s = best", "return scores", "best += s", "scores = best"], "answer": [0], "exp": "현재 점수 s가 best보다 크면 best를 s로 갱신해야 최댓값을 찾을 수 있다.", "multi": false, "code": "def choose_best(scores):\n    best = scores[0]\n    for s in scores:\n        if s > best:\n            __________\n    return best\n\nprint(choose_best([70, 95, 82]))"}, {"type": "mc", "q": "예시 코드에 관한 옳은 설명을 고르시오.", "options": ["리스트를 오름차순으로 정렬한다.", "항상 첫 번째 원소만 출력한다.", "입력 리스트의 길이를 0으로 만든다.", "재귀 호출을 이용하여 정렬한다.", "시간 복잡도는 입력 크기와 무관하게 O(1)이다."], "answer": [0], "exp": "선택 정렬은 남은 원소 중 가장 작은 값을 찾아 앞쪽과 교환해 오름차순으로 정렬한다. 이중 반복문을 사용하므로 보통 O(n²)이다.", "multi": false, "code": "def select_sort(a):\n    for i in range(len(a)):\n        m = i\n        for j in range(i + 1, len(a)):\n            if a[j] < a[m]:\n                m = j\n        a[i], a[m] = a[m], a[i]\n    return a\n\nprint(select_sort([3, 1, 2]))"}];
+const startTime = new Date();
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+function render(){
+  const wrap=document.getElementById('quiz');
+  wrap.innerHTML='';
+  questions.forEach((q,idx)=>{
+    const sec=document.createElement('section');
+    sec.className='card question';
+    let typeLabel = q.type==='ox' ? 'OX' : (q.multi ? '모두 고르기' : '5지선다');
+    sec.innerHTML=`<span class="badge">${idx+1}번 · ${typeLabel}</span><h3>${esc(q.q)}</h3>`+
+      (q.code?`<pre>${esc(q.code)}</pre>`:'')+
+      `<div class="options">${q.options.map((op,i)=>`
+        <label class="option"><input type="${q.multi?'checkbox':'radio'}" name="q${idx}" value="${i}"> ${String.fromCharCode(9312+i)} ${esc(op)}</label>
+      `).join('')}</div><div id="r${idx}" class="result"></div>`;
+    wrap.appendChild(sec);
+  });
+}
+
+function getSelected(idx){
+  return Array.from(document.querySelectorAll(`[name="q${idx}"]:checked`)).map(x=>Number(x.value));
+}
+
+function sameArray(a,b){return a.length===b.length && a.slice().sort().join(',')===b.slice().sort().join(',');}
+
+function grade(){
+  let score=0;
+  questions.forEach((q,idx)=>{
+    const selected=getSelected(idx);
+    const ok=sameArray(selected,q.answer);
+    if(ok) score+=5;
+    const r=document.getElementById('r'+idx);
+    r.style.display='block';
+    r.className='result '+(ok?'correct':'wrong');
+    const ansText=q.answer.map(i=> q.type==='ox'? q.options[i] : String.fromCharCode(9312+i)+' '+q.options[i]).join(', ');
+    const myText=selected.length? selected.map(i=> q.type==='ox'? q.options[i] : String.fromCharCode(9312+i)+' '+q.options[i]).join(', ') : '무응답';
+    r.innerHTML=`<b>${ok?'정답':'오답'}</b><br>내 답: ${esc(myText)}<br>정답: ${esc(ansText)}<br><b>상세 설명:</b> ${esc(q.exp)}`;
+  });
+  document.getElementById('final').innerHTML=`<hr><b>점수: ${score} / 100점</b><br>채점 완료 후 TXT 저장 버튼을 누르세요.`;
+  return score;
+}
+
+function timestamp(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+function makeReport(){
+  const id=document.getElementById('studentId').value.trim()||'학번미입력';
+  const name=document.getElementById('studentName').value.trim()||'이름미입력';
+  const score=grade();
+  let lines=[];
+  lines.push(`학번: ${id}`);
+  lines.push(`이름: ${name}`);
+  lines.push(`점수: ${score} / 100`);
+  lines.push(`시험명: 301알고리즘`);
+  lines.push(`시작시각: ${startTime.toLocaleString()}`);
+  lines.push(`응시시각: ${new Date().toLocaleString()}`);
+  lines.push('');
+  questions.forEach((q,idx)=>{
+    const selected=getSelected(idx);
+    const ok=sameArray(selected,q.answer);
+    const ansText=q.answer.map(i=> q.type==='ox'? q.options[i] : String.fromCharCode(9312+i)+' '+q.options[i]).join(', ');
+    const myText=selected.length? selected.map(i=> q.type==='ox'? q.options[i] : String.fromCharCode(9312+i)+' '+q.options[i]).join(', ') : '무응답';
+    lines.push(`[${idx+1}번] ${ok?'정답':'오답'}`);
+    lines.push(`문제: ${q.q}`);
+    if(q.code) lines.push(`예시 코드:\n${q.code}`);
+    lines.push(`내 답: ${myText}`);
+    lines.push(`정답: ${ansText}`);
+    lines.push(`상세 설명: ${q.exp}`);
+    lines.push('');
+  });
+  return {text:lines.join('\n'), id, name, score};
+}
+
+function downloadResult(){
+  const rep=makeReport();
+  const safe=s=>s.replace(/[\\/:*?"<>|\s]+/g,'_');
+  const filename=`${safe(rep.id)}_${safe(rep.name)}_${rep.score}점_301알고리즘_${timestamp()}.txt`;
+  const blob=new Blob([rep.text],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function resetQuiz(){
+  document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(x=>x.checked=false);
+  document.querySelectorAll('.result').forEach(x=>x.style.display='none');
+  document.getElementById('final').innerHTML='';
+  window.scrollTo(0,0);
+}
+
+render();
+</script>
+</body>
+</html>

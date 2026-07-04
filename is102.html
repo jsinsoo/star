@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1-2 재귀 구조 자동채점 퀴즈</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:'Malgun Gothic',Arial,sans-serif;background:linear-gradient(135deg,#e0f7ff,#f6fbff);color:#102033}
+header{position:sticky;top:0;background:#0f4c81;color:white;padding:14px 22px;z-index:2;box-shadow:0 3px 12px #0002}
+h1{margin:0;font-size:24px} .wrap{max-width:1180px;margin:20px auto;padding:0 18px 80px}
+.card{background:white;border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 6px 22px #0f4c8122;border:1px solid #d8edf8}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:12px} input[type=text]{width:100%;padding:12px;border:1px solid #b9d7e8;border-radius:10px;font-size:16px}
+.badge{display:inline-block;background:#e8f6ff;color:#0f4c81;border:1px solid #b5daf0;border-radius:999px;padding:5px 12px;font-weight:700;margin-bottom:8px}
+pre{background:#132238;color:#eaf6ff;padding:16px;border-radius:14px;overflow:auto;font-size:15px;line-height:1.55;white-space:pre-wrap}
+.choice{display:block;margin:9px 0;padding:12px;border:1px solid #d7e8f3;border-radius:12px;background:#fbfdff;cursor:pointer}
+.choice:hover{background:#eef8ff} button{border:0;border-radius:12px;background:#0f4c81;color:#fff;padding:12px 18px;font-size:16px;font-weight:700;cursor:pointer;margin:6px}
+button.secondary{background:#4d7c9b} .result{font-size:20px;font-weight:800;color:#0f4c81}
+.correct{background:#e8fff0!important;border-color:#43b36b!important} .wrong{background:#fff0f0!important;border-color:#e46b6b!important}
+.explain{display:none;margin-top:12px;padding:13px;border-radius:12px;background:#fff8e5;border:1px solid #f0d58a;line-height:1.6}
+.small{font-size:13px;color:#607080} .toolbar{position:sticky;bottom:0;background:#ffffffee;backdrop-filter:blur(8px);border-top:1px solid #d7e8f3;padding:12px;text-align:center}
+@media(max-width:700px){.info{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>1-2 재귀 구조 HTML 자동채점 퀴즈</h1><div class="small" style="color:#dcefff">코드 추출 · 상세 설명 · OX 10문항 · 5지선다 10문항 · TXT 저장</div></header>
+<div class="wrap">
+<section class="card">
+<span class="badge">코드 추출 상세 설명</span>
+<h2>핵심 개념 정리</h2>
+<p>
+재귀 구조는 큰 문제를 원래 문제와 같은 형태의 작은 하위 문제로 나누어 해결하는 구조이다.
+재귀 함수는 자기 자신을 호출하며, 기본 단계와 재귀 단계가 필요하다.
+반복 구조는 메모리와 속도 면에서 유리한 경우가 있고, 재귀 구조는 코드가 간결하고 논리 흐름을 명확히 표현하는 데 유리한 경우가 있다.
+</p>
+<pre><code>def factorial(n):
+    if n == 1:          # 기본 단계: 재귀 호출을 멈추는 조건
+        return 1
+    else:               # 재귀 단계: 문제를 더 작은 문제로 나눔
+        return n * factorial(n - 1)
+
+print(factorial(4))     # 4 * 3 * 2 * 1 = 24</code></pre>
+<ul>
+<li><b>기본 단계</b>: 더 이상 나눌 수 없는 가장 작은 문제를 직접 해결합니다.</li>
+<li><b>재귀 단계</b>: 원래 문제를 더 작은 같은 형태의 문제로 바꾸어 자기 자신을 호출합니다.</li>
+<li><b>반환 과정</b>: 기본 단계에 도달한 뒤 호출된 순서의 반대로 결과가 차례로 돌아옵니다.</li>
+</ul>
+</section>
+<section class="card">
+<h2>응시자 정보</h2>
+<div class="info">
+<label>학번<input type="text" id="studentId" placeholder="예: 1101"></label>
+<label>이름<input type="text" id="studentName" placeholder="예: 홍길동"></label>
+</div>
+</section>
+<div id="quiz"></div>
+</div>
+<div class="toolbar">
+<button onclick="grade()">제출 및 채점</button>
+<button class="secondary" onclick="downloadTxt()">TXT 저장</button>
+<span id="score" class="result"></span>
+</div>
+<script>
+const QUESTIONS = [{"type": "ox", "title": "OX 1", "prompt": "재귀 구조는 큰 문제를 더 작은 같은 형태의 문제로 나누어 해결하는 구조이다.", "answer": true, "exp": "재귀 구조는 하위 문제가 원래 문제와 같은 구조를 가지도록 문제를 나누어 해결한다."}, {"type": "ox", "title": "OX 2", "prompt": "재귀 함수에는 재귀 호출을 멈추는 기본 단계가 필요 없다.", "answer": false, "exp": "기본 단계가 없으면 재귀 호출이 끝나지 않아 오류가 발생할 수 있다."}, {"type": "ox", "title": "OX 3", "prompt": "재귀 함수는 자기 자신을 호출하는 함수이다.", "answer": true, "exp": "재귀 함수의 핵심은 함수 내부에서 자기 자신을 다시 호출하는 것이다."}, {"type": "ox", "title": "OX 4", "prompt": "factorial(1)에서 1을 반환하도록 하는 조건은 기본 단계의 예이다.", "answer": true, "exp": "더 이상 나누지 않고 바로 해결하는 조건이 기본 단계이다."}, {"type": "ox", "title": "OX 5", "prompt": "반복 구조는 반드시 재귀 구조보다 코드가 짧다.", "answer": false, "exp": "반복 구조는 빠르고 메모리 효율적일 수 있지만 코드가 항상 짧은 것은 아니다."}, {"type": "ox", "title": "OX 6", "prompt": "재귀 구조는 프랙털처럼 자기 유사적인 패턴을 표현할 때 유용하다.", "answer": true, "exp": "작은 단위의 패턴이 반복되는 프랙털은 재귀 구조와 잘 어울린다."}, {"type": "ox", "title": "OX 7", "prompt": "재귀 함수가 호출될 때마다 호출 정보가 기록되고, 반환되면 이전 단계로 돌아간다.", "answer": true, "exp": "재귀 호출은 호출 정보를 쌓았다가 기본 단계 이후 차례로 반환한다."}, {"type": "ox", "title": "OX 8", "prompt": "하노이 탑 문제는 재귀 구조로 해결할 수 없다.", "answer": false, "exp": "하노이 탑은 작은 원반 묶음을 보조 기둥으로 옮기는 과정을 재귀적으로 해결할 수 있다."}, {"type": "ox", "title": "OX 9", "prompt": "재귀 단계는 문제를 더 작은 문제로 나누어 자기 자신을 다시 호출하는 단계이다.", "answer": true, "exp": "재귀 단계는 전체 문제를 하위 문제로 축소하여 같은 함수를 호출한다."}, {"type": "ox", "title": "OX 10", "prompt": "재귀 구조는 메모리를 전혀 사용하지 않는다.", "answer": false, "exp": "재귀 호출마다 호출 정보가 저장되므로 많은 호출에서는 메모리 사용이 커질 수 있다."}, {"type": "multi", "title": "진위형 5지선다 1", "prompt": "다음 중 재귀 구조에 대한 옳은 설명을 모두 고르시오. (옳은 것 3개)", "choices": ["재귀 구조는 하위 문제가 원래 문제와 같은 형태를 가진다.", "재귀 함수는 기본 단계 없이도 안전하게 항상 종료된다.", "재귀 함수는 자기 자신을 호출할 수 있다.", "재귀 호출이 많으면 메모리 사용이 커질 수 있다.", "재귀 구조는 반복 작업을 표현할 수 없다."], "answer": [0, 2, 3], "exp": "재귀 구조는 같은 형태의 작은 문제로 나누며, 재귀 함수는 자기 자신을 호출한다. 호출 정보가 쌓이므로 메모리 사용도 고려해야 한다.", "code": ""}, {"type": "multi", "title": "진위형 5지선다 2", "prompt": "다음 중 반복 구조와 재귀 구조 비교에 대한 옳은 설명을 모두 고르시오. (옳은 것 3개)", "choices": ["반복 구조는 일반적으로 메모리 사용이 효율적이다.", "재귀 구조는 코드가 간결하고 논리 흐름을 표현하기 쉬운 경우가 있다.", "문제 특성에 따라 반복과 재귀 중 적절한 방법을 선택해야 한다.", "재귀 구조는 항상 반복 구조보다 실행 속도가 빠르다.", "반복 구조는 동일한 명령을 반복해서 해결하는 방식이 아니다."], "answer": [0, 1, 2], "exp": "반복은 메모리와 속도 면에서 유리할 수 있고, 재귀는 간결성과 가독성이 장점일 수 있다. 절대적으로 항상 우수한 방식은 없다.", "code": ""}, {"type": "single", "title": "옳은 것 고르기 1", "prompt": "다음 중 재귀 함수의 기본 단계에 대한 옳은 설명은?", "choices": ["재귀 호출을 멈추는 종료 조건이다.", "반드시 함수의 마지막 줄에만 작성해야 한다.", "문제를 더 큰 문제로 확장하는 단계이다.", "모든 재귀 함수에서 생략해도 된다.", "반복문을 금지하는 명령이다."], "answer": 0, "exp": "기본 단계는 더 이상 나누지 않고 바로 해결하여 재귀 호출을 멈추는 조건이다.", "code": ""}, {"type": "single", "title": "옳은 것 고르기 2", "prompt": "다음 중 factorial 재귀 함수의 재귀 단계로 가장 적절한 것은?", "choices": ["return n * factorial(n - 1)", "return 1", "print(n)", "n = 1", "break"], "answer": 0, "exp": "n!은 n × (n-1)!로 표현되므로 n * factorial(n - 1)이 재귀 단계이다.", "code": ""}, {"type": "single", "title": "틀린 것 고르기 1", "prompt": "다음 중 재귀 구조 설명에서 틀린 것은?", "choices": ["재귀 함수는 자기 자신을 호출한다.", "재귀 구조는 문제를 작은 하위 문제로 나눌 수 있다.", "기본 단계는 재귀 호출을 멈추게 한다.", "재귀 호출이 반환되면 이전 단계로 돌아간다.", "재귀 함수는 종료 조건이 없어도 무조건 정상 종료된다."], "answer": 4, "exp": "종료 조건이 없으면 무한 재귀가 되어 정상 종료되지 않을 수 있다.", "code": ""}, {"type": "single", "title": "틀린 것 고르기 2", "prompt": "다음 중 하노이 탑 재귀 설명에서 틀린 것은?", "choices": ["한 번에 하나의 원반만 이동한다.", "큰 원반은 작은 원반 위에 올 수 없다.", "n개의 문제를 n-1개의 문제로 나누어 생각할 수 있다.", "보조 기둥을 활용한다.", "원반은 한 번에 여러 개를 동시에 이동해야 한다."], "answer": 4, "exp": "하노이 탑은 한 번에 하나의 원반만 이동해야 한다.", "code": ""}, {"type": "single", "title": "코드형 옳은 것 고르기", "prompt": "예시 코드를 보고 옳은 설명을 고르시오.", "choices": ["출력 결과는 8이다.", "n이 0일 때도 재귀 호출을 계속한다.", "power(2, 3)은 2를 세 번 나누는 함수이다.", "기본 단계가 없어서 반드시 오류가 난다.", "return 1은 재귀 단계이다."], "answer": 0, "exp": "power(2,3)=2×power(2,2)=2×2×power(2,1)=2×2×2×power(2,0)=8이다.", "code": "def power(x, n):\n    if n == 0:\n        return 1\n    else:\n        return x * power(x, n - 1)\n\nprint(power(2, 3))"}, {"type": "single", "title": "코드형 틀린 것 고르기", "prompt": "예시 코드를 보고 틀린 설명을 고르시오.", "choices": ["3, 2, 1, 끝 순서로 출력된다.", "n이 0이면 '끝'을 출력한다.", "count_down 함수는 자기 자신을 호출한다.", "n - 1로 문제가 점점 작아진다.", "이 코드는 3부터 무한히 증가하며 출력된다."], "answer": 4, "exp": "n이 1씩 감소하여 0이 되면 종료되므로 무한히 증가하지 않는다.", "code": "def count_down(n):\n    if n == 0:\n        print(\"끝\")\n    else:\n        print(n)\n        count_down(n - 1)\n\ncount_down(3)"}, {"type": "single", "title": "빈칸 코드 고르기", "prompt": "빈 줄에 들어갈 코드로 가장 적절한 것은?", "choices": ["n * factorial(n - 1)", "n + factorial(n + 1)", "factorial(n)", "return n - 1", "print(n)"], "answer": 0, "exp": "팩토리얼은 n! = n × (n-1)! 관계를 이용하므로 n * factorial(n - 1)이 알맞다.", "code": "def factorial(n):\n    if n == 1:\n        return 1\n    else:\n        return __________________\n\nprint(factorial(4))"}, {"type": "single", "title": "코드 설명 옳은 것 고르기", "prompt": "예시 코드에 관한 옳은 설명을 고르시오.", "choices": ["출력 결과는 23이다.", "n < 10 조건은 재귀 단계이다.", "n % 10은 마지막 자릿수를 제거한다.", "digit_sum(7925)는 7925를 그대로 출력한다.", "이 함수는 문자열 조합을 생성한다."], "answer": 0, "exp": "7925의 각 자릿수 7+9+2+5의 합은 23이다. n < 10은 기본 단계이다.", "code": "def digit_sum(n):\n    if n < 10:\n        return n\n    else:\n        return digit_sum(n // 10) + n % 10\n\nprint(digit_sum(7925))"}];
+let graded=false, lastReport='';
+
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function render(){
+ const box=document.getElementById('quiz');
+ box.innerHTML=QUESTIONS.map((q,i)=>{
+   let html=`<section class="card qcard" id="q${i}"><span class="badge">문항 ${i+1} / ${QUESTIONS.length} · ${q.title}</span><h3>${esc(q.prompt)}</h3>`;
+   if(q.code) html+=`<pre><code>${esc(q.code)}</code></pre>`;
+   if(q.type==='ox'){
+     html+=`<label class="choice"><input type="radio" name="q${i}" value="true"> O</label><label class="choice"><input type="radio" name="q${i}" value="false"> X</label>`;
+   } else {
+     const inputType=q.type==='multi'?'checkbox':'radio';
+     html+=q.choices.map((c,j)=>`<label class="choice"><input type="${inputType}" name="q${i}" value="${j}"> ${String.fromCharCode(9312+j)} ${esc(c)}</label>`).join('');
+   }
+   html+=`<div class="explain" id="ex${i}"></div></section>`;
+   return html;
+ }).join('');
+}
+function getAns(i){
+ const q=QUESTIONS[i];
+ if(q.type==='ox'){
+   const el=document.querySelector(`input[name=q${i}]:checked`);
+   return el? el.value==='true': null;
+ }
+ return [...document.querySelectorAll(`input[name=q${i}]:checked`)].map(x=>Number(x.value));
+}
+function same(a,b){
+ if(Array.isArray(b)) return Array.isArray(a)&&a.length===b.length&&[...a].sort().join(',')===[...b].sort().join(',');
+ return a===b;
+}
+function ansText(q,a){
+ if(a===null) return '미응답';
+ if(q.type==='ox') return a?'O':'X';
+ let arr=Array.isArray(a)?a:[a];
+ return arr.map(v=>String.fromCharCode(9312+v)+' '+q.choices[v]).join(' / ') || '미응답';
+}
+function grade(){
+ let correct=0, lines=[];
+ QUESTIONS.forEach((q,i)=>{
+   const ua=getAns(i), ok=same(ua,q.answer);
+   if(ok) correct++;
+   const card=document.getElementById('q'+i);
+   card.querySelectorAll('.choice').forEach((lab,j)=>{
+     lab.classList.remove('correct','wrong');
+     const should = q.type==='ox' ? ((j===0)===q.answer) : (Array.isArray(q.answer)?q.answer.includes(j):q.answer===j);
+     const picked = q.type==='ox' ? (ua!==null && ((j===0)===ua)) : (Array.isArray(ua)&&ua.includes(j));
+     if(should) lab.classList.add('correct');
+     if(picked&&!should) lab.classList.add('wrong');
+   });
+   const ex=document.getElementById('ex'+i);
+   ex.style.display='block';
+   ex.innerHTML=`<b>${ok?'정답':'오답'}</b><br>내 답: ${esc(ansText(q,ua))}<br>정답: ${esc(ansText(q,q.answer))}<br>상세 설명: ${esc(q.exp)}`;
+   lines.push(`${i+1}. ${q.title}\n문제: ${q.prompt}\n내 답: ${ansText(q,ua)}\n정답: ${ansText(q,q.answer)}\n정오답: ${ok?'정답':'오답'}\n상세 설명: ${q.exp}\n`);
+ });
+ const score=Math.round(correct/QUESTIONS.length*100);
+ document.getElementById('score').textContent=`점수: ${score}점 (${correct}/${QUESTIONS.length})`;
+ graded=true;
+ const sid=document.getElementById('studentId').value.trim();
+ const name=document.getElementById('studentName').value.trim();
+ const now=new Date();
+ const time=now.toLocaleString('ko-KR');
+ lastReport=`학번: ${sid}\n이름: ${name}\n점수: ${score}점 (${correct}/${QUESTIONS.length})\n과목: 102재귀구조\n응시시각: ${time}\n\n`+lines.join('\n');
+}
+function pad(n){return String(n).padStart(2,'0')}
+function downloadTxt(){
+ if(!graded) grade();
+ const sid=document.getElementById('studentId').value.trim()||'학번미입력';
+ const name=document.getElementById('studentName').value.trim()||'이름미입력';
+ const scoreText=document.getElementById('score').textContent.match(/점수: (\d+)점/);
+ const score=scoreText?scoreText[1]:'0';
+ const d=new Date();
+ const stamp=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds());
+ const filename=`${sid}_${name}_${score}점_102재귀구조_${stamp}.txt`;
+ const blob=new Blob([lastReport],{type:'text/plain;charset=utf-8'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+ URL.revokeObjectURL(a.href);
+}
+render();
+</script>
+</body></html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>303 관계알고리즘 퀴즈</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:'Malgun Gothic',Arial,sans-serif;background:#f4f5ff;color:#1f2937}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;padding:14px 22px;box-shadow:0 3px 12px #0003}
+header h1{margin:0;font-size:24px}.wrap{max-width:1180px;margin:20px auto;padding:0 14px}
+.card{background:white;border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 8px 24px #6366f133;border:1px solid #e5e7eb}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:12px}.info input{padding:13px;border:2px solid #c7d2fe;border-radius:12px;font-size:16px}
+h2{color:#4338ca;border-left:8px solid #6366f1;padding-left:10px}.code{background:#0f172a;color:#e5e7eb;border-radius:14px;padding:16px;overflow:auto;white-space:pre;font-family:Consolas,monospace;font-size:15px;line-height:1.55}
+.q{border:1px solid #ddd6fe;border-radius:16px;padding:18px;margin:16px 0;background:#fbfaff}.q h3{margin-top:0;color:#312e81}
+.choice{display:block;margin:9px 0;padding:10px 12px;border-radius:12px;border:1px solid #ddd6fe;background:white;cursor:pointer}
+.choice:hover{background:#eef2ff}.multi-note{font-size:13px;color:#6b21a8;font-weight:bold}
+button{border:0;border-radius:12px;padding:12px 18px;margin:8px 4px;background:#4f46e5;color:white;font-weight:bold;cursor:pointer;font-size:15px}
+button:hover{background:#3730a3}.result{font-size:20px;font-weight:bold;color:#dc2626}.explain{display:none;margin-top:10px;padding:12px;border-radius:12px;background:#fefce8;border-left:6px solid #facc15}
+.correct{background:#dcfce7!important;border-color:#22c55e}.wrong{background:#fee2e2!important;border-color:#ef4444}
+.small{color:#6b7280;font-size:14px}.pill{display:inline-block;background:#eef2ff;color:#3730a3;padding:4px 9px;border-radius:999px;font-size:12px;margin:2px}
+</style>
+</head>
+<body>
+<header><h1>Ⅲ-3 관계 기반 알고리즘 자동채점 퀴즈</h1></header>
+<div class="wrap">
+<section class="card">
+<h2>학번 · 이름 입력</h2>
+<div class="info">
+<input id="studentId" placeholder="학번 입력">
+<input id="studentName" placeholder="이름 입력">
+</div>
+<p class="small">제출하면 <b>학번_이름_점수_303관계알고리즘_응시시각.txt</b> 파일이 저장됩니다.</p>
+</section>
+
+<section class="card">
+<h2>코드 추출 상세 설명</h2>
+<p>관계 기반 알고리즘은 복잡한 전체 문제를 작은 부분 문제로 나누고, 전체 문제와 부분 문제 사이의 관계를 찾아 해결하는 방법입니다. 대표적으로 <b>분할 정복법</b>과 <b>동적 계획법</b>이 있습니다.</p>
+<span class="pill">문제 분해</span><span class="pill">관계식</span><span class="pill">재귀</span><span class="pill">분할 정복</span><span class="pill">동적 계획법</span>
+<h3>예시 1. 1부터 n까지 합</h3>
+<pre class="code">def f(n):
+    if n == 1:
+        return 1
+    else:
+        return f(n - 1) + n
+
+print(f(10))</pre>
+<p>전체 문제 f(n)은 부분 문제 f(n-1)에 n을 더하는 관계로 표현됩니다. 종료 조건 f(1)=1이 있어야 재귀 호출이 멈춥니다. 실행 결과는 55입니다.</p>
+<h3>예시 2. 하노이 탑 이동 횟수</h3>
+<pre class="code">def hanoi_count(n):
+    if n == 1:
+        return 1
+    return 2 * hanoi_count(n - 1) + 1
+
+print(hanoi_count(3))</pre>
+<p>원반 n개를 옮기려면 n-1개를 보조 기둥으로 옮기고, 가장 큰 원반 1개를 목표 기둥으로 옮긴 뒤, 다시 n-1개를 목표 기둥으로 옮깁니다. 따라서 T(n)=2T(n-1)+1입니다.</p>
+<h3>예시 3. 동적 계획법 계단 오르기</h3>
+<pre class="code">def stair(n):
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    dp[2] = 2
+    for i in range(3, n + 1):
+        dp[i] = dp[i - 1] + dp[i - 2]
+    return dp[n]
+
+print(stair(5))</pre>
+<p>한 번에 1칸 또는 2칸 오를 수 있으므로 n번째 계단에 도달하는 방법은 f(n-1)+f(n-2)입니다. 이미 계산한 값을 dp에 저장해 중복 계산을 줄입니다.</p>
+</section>
+
+<section class="card">
+<h2>퀴즈</h2>
+<div id="quiz"></div>
+<button onclick="grade()">제출 및 채점</button>
+<button onclick="downloadTxt()">TXT 저장</button>
+<div id="score" class="result"></div>
+</section>
+</div>
+<script>
+const questions = [
+{type:'ox', q:'관계 기반 알고리즘은 전체 문제와 부분 문제 간의 관계를 활용하여 문제를 해결한다.', a:'O', exp:'관계 기반 알고리즘은 문제를 분해하고 전체 문제와 부분 문제의 관계를 바탕으로 해결한다.'},
+{type:'ox', q:'분할 정복법은 문제를 작은 부분 문제로 나누고, 각각 해결한 뒤 결합한다.', a:'O', exp:'분할 정복법은 분할, 정복, 병합 단계로 이루어진다.'},
+{type:'ox', q:'동적 계획법은 중복되는 부분 문제의 해를 저장하여 재사용한다.', a:'O', exp:'동적 계획법은 메모이제이션이나 테이블을 사용해 중복 계산을 줄인다.'},
+{type:'ox', q:'하노이 탑의 기본 단계는 원반이 1개일 때 바로 옮기는 것이다.', a:'O', exp:'원반 1개는 더 작게 나눌 필요가 없는 기저 사례이다.'},
+{type:'ox', q:'퀵 정렬은 피벗을 기준으로 작은 값과 큰 값을 분할한다.', a:'O', exp:'퀵 정렬은 피벗보다 작거나 같은 값과 큰 값을 나누어 재귀적으로 정렬한다.'},
+{type:'ox', q:'합병 정렬은 리스트를 절반으로 나눈 뒤 정렬된 부분 리스트를 합병한다.', a:'O', exp:'합병 정렬은 분할 후 정렬된 하위 리스트를 병합한다.'},
+{type:'ox', q:'관계 기반 알고리즘에서는 부분 문제 사이의 관계를 고려하지 않는다.', a:'X', exp:'부분 문제 사이의 관계를 찾는 것이 핵심이다.'},
+{type:'ox', q:'동적 계획법은 모든 경우에 항상 재귀 호출만 사용해야 한다.', a:'X', exp:'동적 계획법은 하향식 재귀도 가능하지만 상향식 반복문도 가능하다.'},
+{type:'ox', q:'퀵 정렬의 최악 시간 복잡도는 항상 O(nlogn)이다.', a:'X', exp:'퀵 정렬은 평균 O(nlogn)이지만 최악의 경우 O(n²)이 될 수 있다.'},
+{type:'ox', q:'분할 정복법은 부분 문제를 전혀 해결하지 않고 전체 문제만 직접 해결한다.', a:'X', exp:'분할 정복법은 작은 부분 문제를 해결한 후 결과를 결합한다.'},
+
+{type:'multi', q:'옳은 것을 모두 고르시오. [3개 정답]', choices:['관계 기반 알고리즘은 문제를 작은 부분 문제로 나눈다.','하노이 탑은 재귀적 관계식으로 표현할 수 있다.','동적 계획법은 중복 계산을 줄이는 데 유용하다.','분할 정복법은 항상 부분 문제를 저장해 재사용해야만 한다.','합병 정렬은 피벗 하나만 고르면 정렬이 끝난다.'], a:[0,1,2], exp:'문제 분해, 하노이 탑 재귀식, 동적 계획법의 중복 계산 감소가 옳다.'},
+{type:'multi', q:'옳은 것을 모두 고르시오. [3개 정답]', choices:['분할 정복법은 분할-정복-병합 과정을 포함한다.','퀵 정렬은 피벗을 기준으로 리스트를 나눈다.','상향식 동적 계획법은 작은 문제부터 차례로 계산한다.','관계 기반 알고리즘은 탐색 공간만 무작위로 돌아다니는 방법이다.','동적 계획법은 계산 결과를 저장하면 안 된다.'], a:[0,1,2], exp:'분할 정복, 퀵 정렬, 상향식 DP 설명이 옳다.'},
+
+{type:'single', q:'옳은 설명 1개를 고르시오.', choices:['관계 기반 알고리즘은 부분 문제의 관계를 활용한다.','분할 정복법은 문제를 절대 나누지 않는다.','동적 계획법은 이미 계산한 값을 반드시 버린다.','하노이 탑은 관계식으로 표현할 수 없다.','합병 정렬은 정렬된 부분 리스트를 합치지 않는다.'], a:0, exp:'관계 기반 알고리즘은 전체 문제와 부분 문제의 관계를 활용한다.'},
+{type:'single', q:'옳은 설명 1개를 고르시오.', choices:['동적 계획법은 중복 부분 문제의 답을 저장하여 효율을 높인다.','퀵 정렬은 어떤 경우에도 비교가 전혀 없다.','하노이 탑은 원반을 한 번에 여러 개 옮긴다.','분할 정복법은 병합 과정이 절대 없다.','상향식 DP는 큰 문제부터 재귀로만 해결한다.'], a:0, exp:'동적 계획법의 핵심은 중복 계산 결과 저장과 재사용이다.'},
+
+{type:'single', q:'틀린 설명 1개를 고르시오.', choices:['하노이 탑 이동 횟수는 T(n)=2T(n-1)+1로 표현할 수 있다.','원반 1개를 옮기는 경우는 기본 단계가 될 수 있다.','분할 정복법은 문제를 작은 문제로 나눈다.','동적 계획법은 중복 계산을 줄일 수 있다.','관계 기반 알고리즘은 부분 문제를 만들면 반드시 오답이 된다.'], a:4, exp:'부분 문제를 만드는 것은 관계 기반 알고리즘의 핵심이므로 틀린 설명이다.'},
+{type:'single', q:'틀린 설명 1개를 고르시오.', choices:['퀵 정렬은 피벗을 기준으로 분할한다.','합병 정렬은 리스트를 나누고 다시 합친다.','상향식 DP는 작은 문제부터 큰 문제로 확장한다.','메모이제이션은 이미 계산한 값을 저장한다.','동적 계획법은 저장된 값을 절대로 재사용하지 않는다.'], a:4, exp:'동적 계획법은 저장된 값을 재사용하여 효율을 높인다.'},
+
+{type:'single', code:`def total(n):
+    if n == 1:
+        return 1
+    return total(n - 1) + n
+
+print(total(4))`, q:'위 코드에 대한 옳은 설명 1개를 고르시오.', choices:['출력은 10이다.','종료 조건이 없어서 무한 재귀만 발생한다.','total(4)는 4만 출력한다.','return total(n - 1) + n은 반복문 문법이다.','n이 1일 때 0을 반환한다.'], a:0, exp:'1+2+3+4=10이므로 출력은 10이다.'},
+{type:'single', code:`def h(n):
+    if n == 1:
+        return 1
+    return 2 * h(n - 1) + 1
+
+print(h(3))`, q:'위 코드에 대한 틀린 설명 1개를 고르시오.', choices:['h(1)은 1을 반환한다.','h(2)는 3이다.','h(3)은 7이다.','하노이 탑 이동 횟수 관계식과 유사하다.','h(3)의 출력은 3이다.'], a:4, exp:'h(3)=2*h(2)+1=7이므로 출력은 3이 아니다.'},
+{type:'single', code:`def stair(n):
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    dp[2] = 2
+    for i in range(3, n + 1):
+        __________
+    return dp[n]
+
+print(stair(5))`, q:'빈칸에 들어갈 가장 적합한 코드를 고르시오.', choices:['dp[i] = dp[i - 1] + dp[i - 2]','dp[i] = i * i','dp[i] = dp[i] + 1','return dp[i]','dp = []'], a:0, exp:'1칸 또는 2칸 오르는 계단 문제의 관계식은 f(n)=f(n-1)+f(n-2)이다.'},
+{type:'single', code:`def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[0]
+    left = [x for x in arr[1:] if x <= pivot]
+    right = [x for x in arr[1:] if x > pivot]
+    return quick_sort(left) + [pivot] + quick_sort(right)
+
+print(quick_sort([3, 1, 4, 2]))`, q:'예시 코드에 관한 옳은 설명 1개를 고르시오.', choices:['피벗을 기준으로 작은 값과 큰 값을 나누어 재귀적으로 정렬한다.','출력은 항상 입력과 같은 순서이다.','len(arr) <= 1이면 오류를 발생시킨다.','left에는 피벗보다 큰 값만 들어간다.','right에는 피벗보다 작거나 같은 값만 들어간다.'], a:0, exp:'퀵 정렬은 피벗을 기준으로 분할하고 재귀적으로 정렬한 뒤 결합한다.'}
+];
+
+function render(){
+ const box=document.getElementById('quiz');
+ questions.forEach((qq,i)=>{
+  let div=document.createElement('div'); div.className='q'; div.id='q'+i;
+  let html=`<h3>${i+1}. ${qq.q}</h3>`;
+  if(qq.code) html+=`<pre class="code">${qq.code.replaceAll('<','&lt;')}</pre>`;
+  if(qq.type==='ox'){
+    html+=`<label class="choice"><input type="radio" name="q${i}" value="O"> O</label><label class="choice"><input type="radio" name="q${i}" value="X"> X</label>`;
+  }else if(qq.type==='multi'){
+    html+=`<div class="multi-note">복수 정답: 옳은 것 모두 선택</div>`;
+    qq.choices.forEach((c,j)=> html+=`<label class="choice"><input type="checkbox" name="q${i}" value="${j}"> ${String.fromCharCode(9312+j)} ${c}</label>`);
+  }else{
+    qq.choices.forEach((c,j)=> html+=`<label class="choice"><input type="radio" name="q${i}" value="${j}"> ${String.fromCharCode(9312+j)} ${c}</label>`);
+  }
+  html+=`<div class="explain" id="e${i}"></div>`;
+  div.innerHTML=html; box.appendChild(div);
+ });
+}
+render();
+
+let graded=false, finalScore=0, detail=[];
+function getAns(i){
+ const qq=questions[i];
+ if(qq.type==='multi') return [...document.querySelectorAll(`input[name=q${i}]:checked`)].map(x=>Number(x.value)).sort((a,b)=>a-b);
+ const el=document.querySelector(`input[name=q${i}]:checked`);
+ return el? (qq.type==='ox'? el.value:Number(el.value)) : null;
+}
+function isSame(a,b){ return JSON.stringify(a)==JSON.stringify(b); }
+function grade(){
+ let correct=0; detail=[];
+ questions.forEach((qq,i)=>{
+  const user=getAns(i); let ok=false;
+  if(qq.type==='multi') ok=isSame(user,qq.a); else ok=user===qq.a;
+  if(ok) correct++;
+  const exp=document.getElementById('e'+i);
+  exp.style.display='block';
+  exp.innerHTML=(ok?'✅ 정답':'❌ 오답')+`<br>정답: ${Array.isArray(qq.a)?qq.a.map(x=>String.fromCharCode(9312+x)).join(', '):qq.a}<br>해설: ${qq.exp}`;
+  document.querySelectorAll(`#q${i} .choice`).forEach((lab,idx)=>{
+    lab.classList.remove('correct','wrong');
+    if(qq.type==='ox'){
+      const v=lab.querySelector('input').value;
+      if(v===qq.a) lab.classList.add('correct');
+      else if(v===user) lab.classList.add('wrong');
+    }else{
+      if(Array.isArray(qq.a) && qq.a.includes(idx)) lab.classList.add('correct');
+      else if(qq.a===idx) lab.classList.add('correct');
+      else {
+        const inp=lab.querySelector('input');
+        if(inp.checked) lab.classList.add('wrong');
+      }
+    }
+  });
+  detail.push({no:i+1, question:qq.q, user:user, answer:qq.a, ok:ok, exp:qq.exp});
+ });
+ finalScore=Math.round(correct/questions.length*100);
+ graded=true;
+ document.getElementById('score').innerText=`점수: ${finalScore}점 (${correct}/${questions.length})`;
+}
+function nowStr(){
+ const d=new Date(); const p=n=>String(n).padStart(2,'0');
+ return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+function downloadTxt(){
+ if(!graded) grade();
+ const sid=document.getElementById('studentId').value.trim()||'학번미입력';
+ const name=document.getElementById('studentName').value.trim()||'이름미입력';
+ const t=nowStr();
+ let text=`학번: ${sid}\n이름: ${name}\n점수: ${finalScore}\n과목: 303관계알고리즘\n응시시각: ${t}\n\n`;
+ detail.forEach(d=>{
+  text+=`${d.no}. ${d.ok?'정답':'오답'}\n문제: ${d.question}\n내 답: ${JSON.stringify(d.user)}\n정답: ${JSON.stringify(d.answer)}\n해설: ${d.exp}\n\n`;
+ });
+ const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=`${sid}_${name}_${finalScore}_303관계알고리즘_${t}.txt`;
+ a.click();
+}
+</script>
+</body>
+</html>

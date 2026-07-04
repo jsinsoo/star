@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1-1 함수의 이해 | 코드 추출 상세 설명 + 자동채점</title>
+<style>
+:root{
+  --bg:#eef7ff;--card:#fff;--ink:#17324d;--muted:#5d7186;
+  --blue:#2563eb;--sky:#dbeafe;--green:#16a34a;--red:#dc2626;--amber:#f59e0b;
+  --line:#c9d9ef;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Malgun Gothic",Apple SD Gothic Neo,sans-serif;background:linear-gradient(135deg,#eef7ff,#f8fbff);color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.header-inner{max-width:1280px;margin:auto;padding:10px 18px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+h1{font-size:22px;margin:0}.badge{background:#e0f2fe;color:#075985;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700}
+main{max-width:1280px;margin:0 auto;padding:20px}
+.section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(37,99,235,.08)}
+h2{margin:0 0 14px;font-size:24px;border-left:8px solid var(--blue);padding-left:12px}
+h3{margin:18px 0 10px;color:#1e40af}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.concept{background:#f8fbff;border:1px solid #dbeafe;border-radius:14px;padding:14px}.concept b{color:#1d4ed8}
+pre{white-space:pre-wrap;background:#0f172a;color:#e5e7eb;padding:16px;border-radius:14px;overflow:auto;font-size:15px;line-height:1.55}
+code{font-family:Consolas,Monaco,monospace}
+.line{display:block}.line::before{content:attr(data-n);display:inline-block;width:34px;color:#93c5fd}
+.formbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+input[type=text]{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:16px}
+.q{border:1px solid #d9e7f7;border-radius:16px;padding:18px;margin:14px 0;background:#fff}
+.q-title{font-weight:800;font-size:17px;margin-bottom:10px}.q-type{display:inline-block;font-size:12px;color:#fff;background:#334155;border-radius:999px;padding:4px 8px;margin-right:6px}
+.opt{display:block;margin:8px 0;padding:10px;border:1px solid #e5edf8;border-radius:12px;cursor:pointer;background:#fbfdff}
+.opt:hover{background:#eff6ff}.opt input{margin-right:8px}
+button{border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer;background:var(--blue);color:white;font-size:16px}
+button.secondary{background:#0f766e}.buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.result{display:none;margin-top:16px;padding:18px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0}
+.wrong{background:#fff1f2!important;border-color:#fecdd3!important}.right{background:#f0fdf4!important;border-color:#bbf7d0!important}
+.explain{display:none;margin-top:10px;background:#f8fafc;border-left:5px solid #64748b;padding:12px;border-radius:10px;color:#334155}
+.small{font-size:13px;color:var(--muted)}.pill{display:inline-block;background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:999px;font-size:12px;margin-left:6px}
+.table{width:100%;border-collapse:collapse}.table th,.table td{border:1px solid #dbeafe;padding:10px;text-align:left}.table th{background:#eff6ff}
+.footer-note{font-size:13px;color:#64748b}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <h1>Ⅰ. 프로그래밍 1-1 함수의 이해</h1>
+    <span class="badge">코드 추출 상세 설명 · 20문항 자동채점 · TXT 저장</span>
+  </div>
+</header>
+<main>
+<section class="section">
+<h2>학습자 정보</h2>
+<div class="formbox">
+  <label>학번<br><input id="studentId" type="text" placeholder="예: 1101"></label>
+  <label>이름<br><input id="studentName" type="text" placeholder="예: 홍길동"></label>
+</div>
+<p class="small">제출하면 <b>학번_이름_점수_101함수_응시시각.txt</b> 파일이 생성됩니다.</p>
+</section>
+
+<section class="section">
+<h2>코드 추출 상세 설명</h2>
+<div class="grid">
+  <div class="concept"><b>함수</b><br>특정한 작업을 수행하도록 작성된 독립적인 코드 블록입니다. 반복 코드를 함수로 만들면 호출만으로 재사용할 수 있습니다.</div>
+  <div class="concept"><b>함수 정의</b><br><code>def 함수명(매개변수):</code> 형태로 시작하고, 함수 본문은 들여쓰기로 구분합니다.</div>
+  <div class="concept"><b>매개 변수와 인수</b><br>인수는 호출할 때 전달하는 값이고, 매개 변수는 함수 내부에서 그 값을 받는 변수입니다.</div>
+  <div class="concept"><b>return</b><br>함수의 처리 결과를 호출한 곳으로 돌려주고, 함수 실행을 종료합니다.</div>
+</div>
+
+<h3>예시 코드 1: 나눗셈 함수</h3>
+<pre><code><span class="line" data-n="01"># 함수 정의</span>
+<span class="line" data-n="02">def divide(a, b):</span>
+<span class="line" data-n="03">    if b != 0:</span>
+<span class="line" data-n="04">        return a / b</span>
+<span class="line" data-n="05">    else:</span>
+<span class="line" data-n="06">        return '0으로 나눌 수 없습니다.'</span>
+<span class="line" data-n="07"></span>
+<span class="line" data-n="08">print(divide(10, 2))</span>
+<span class="line" data-n="09">print(divide(10, 0))</span></code></pre>
+<table class="table">
+<tr><th>줄</th><th>설명</th></tr>
+<tr><td>02</td><td><code>divide</code>라는 사용자 정의 함수를 만들고, 매개 변수 <code>a</code>, <code>b</code>를 받습니다.</td></tr>
+<tr><td>03~06</td><td><code>b</code>가 0이 아니면 나눗셈 결과를 반환하고, 0이면 안내 문자열을 반환합니다.</td></tr>
+<tr><td>08~09</td><td>함수를 호출합니다. 첫 호출은 <code>5.0</code>, 두 번째 호출은 <code>0으로 나눌 수 없습니다.</code>를 출력합니다.</td></tr>
+</table>
+
+<h3>예시 코드 2: 중간값 찾기 함수</h3>
+<pre><code><span class="line" data-n="01">def find_middle_number(a, b, c):</span>
+<span class="line" data-n="02">    numbers = [a, b, c]</span>
+<span class="line" data-n="03">    numbers.sort()</span>
+<span class="line" data-n="04">    return numbers[1]</span>
+<span class="line" data-n="05"></span>
+<span class="line" data-n="06">print(find_middle_number(5, 7, 3))</span>
+<span class="line" data-n="07">print(find_middle_number(10, 20, 30))</span></code></pre>
+<table class="table">
+<tr><th>핵심</th><th>설명</th></tr>
+<tr><td>정의와 호출의 구분</td><td>함수는 정의만으로 실행되지 않고, 6~7행처럼 호출해야 실행됩니다.</td></tr>
+<tr><td>인수와 매개 변수</td><td><code>5, 7, 3</code>은 인수이고, 함수 내부의 <code>a, b, c</code>는 매개 변수입니다.</td></tr>
+<tr><td>반환값</td><td>정렬 후 가운데 위치인 <code>numbers[1]</code>을 반환합니다.</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>자동채점 문제</h2>
+<div id="quiz"></div>
+<div class="buttons">
+<button onclick="gradeQuiz()">제출 및 채점</button>
+<button class="secondary" onclick="downloadTxt()">TXT 저장</button>
+</div>
+<div id="result" class="result"></div>
+</section>
+<section class="section footer-note">
+자료 근거: 업로드한 정보과학 1단원 함수 PPT와 교과서 내용 정리의 “함수의 이해” 내용을 바탕으로 재구성했습니다.
+</section>
+</main>
+
+<script>
+const questions = [
+{type:"OX", text:"함수를 사용하면 반복되는 코드의 중복을 줄일 수 있다.", options:["O","X"], answer:["O"], exp:"함수는 반복적인 수행이 필요한 문장을 묶어 재사용할 수 있게 하므로 코드 중복을 줄인다."},
+{type:"OX", text:"함수는 한 번 정의하면 반드시 한 번만 호출할 수 있다.", options:["O","X"], answer:["X"], exp:"함수는 필요할 때마다 여러 번 호출할 수 있다."},
+{type:"OX", text:"파이썬 함수 이름은 숫자로 시작할 수 없다.", options:["O","X"], answer:["O"], exp:"함수명은 변수명 규칙을 따르며 문자 또는 밑줄로 시작해야 한다."},
+{type:"OX", text:"함수를 사용하면 프로그램을 작은 단위로 구조화할 수 있다.", options:["O","X"], answer:["O"], exp:"복잡한 프로그램을 함수 단위로 나누면 이해와 작성이 쉬워진다."},
+{type:"OX", text:"매개 변수가 없는 함수도 괄호는 생략할 수 없다.", options:["O","X"], answer:["O"], exp:"함수 정의와 호출에서 매개 변수가 없어도 괄호는 필요하다."},
+{type:"OX", text:"함수 본문은 들여쓰기로 구분한다.", options:["O","X"], answer:["O"], exp:"파이썬에서 함수 본문은 def 다음 줄부터 들여쓰기하여 작성한다."},
+{type:"OX", text:"return은 값을 반환할 수 있지만 함수 실행을 끝내지는 않는다.", options:["O","X"], answer:["X"], exp:"return은 값을 반환하고 함수 실행을 종료한다."},
+{type:"OX", text:"sum(), print()는 파이썬에서 제공하는 내장 함수의 예이다.", options:["O","X"], answer:["O"], exp:"파이썬 언어가 기본 제공하는 함수를 내장 함수라고 한다."},
+{type:"OX", text:"사용자 정의 함수는 개발자가 필요에 따라 직접 정의한 함수이다.", options:["O","X"], answer:["O"], exp:"언어에서 제공되지 않는 기능은 사용자가 직접 함수로 정의할 수 있다."},
+{type:"OX", text:"지역 변수는 프로그램 전체에서 항상 사용할 수 있다.", options:["O","X"], answer:["X"], exp:"지역 변수는 특정 함수나 코드 블록 안에서만 유효하다."},
+
+{type:"복수선택", text:"다음 보기 중 함수에 대한 옳은 설명을 모두 고르시오. <span class='pill'>옳은 것 3개</span>", multi:true,
+options:["함수는 특정 작업을 수행하는 독립적인 코드 블록이다.","반복 코드를 함수로 만들면 재사용성이 높아진다.","함수는 정의만 해도 자동으로 실행된다.","매개 변수가 없어도 함수 정의에는 괄호가 필요하다.","return은 파이썬에서 함수 이름을 정할 때 쓰는 명령어이다."],
+answer:["함수는 특정 작업을 수행하는 독립적인 코드 블록이다.","반복 코드를 함수로 만들면 재사용성이 높아진다.","매개 변수가 없어도 함수 정의에는 괄호가 필요하다."],
+exp:"함수는 코드 블록이며 재사용성을 높인다. 정의만으로는 실행되지 않고 호출해야 하며, return은 반환 명령어이다."},
+
+{type:"복수선택", text:"다음 보기 중 인수와 매개 변수에 대한 옳은 설명을 모두 고르시오. <span class='pill'>옳은 것 3개</span>", multi:true,
+options:["인수는 함수를 호출할 때 전달하는 값이다.","매개 변수는 함수 내부에서 전달받은 값을 저장해 사용하는 변수이다.","find_middle_number(5,7,3)에서 5,7,3은 인수이다.","매개 변수는 반드시 함수 밖에서만 사용할 수 있다.","인수와 매개 변수는 항상 이름이 같아야 한다."],
+answer:["인수는 함수를 호출할 때 전달하는 값이다.","매개 변수는 함수 내부에서 전달받은 값을 저장해 사용하는 변수이다.","find_middle_number(5,7,3)에서 5,7,3은 인수이다."],
+exp:"인수는 호출자가 전달하는 값이고, 매개 변수는 함수가 그 값을 받는 변수이다. 이름이 같을 필요는 없다."},
+
+{type:"5지선다", text:"다음 중 함수의 정의로 가장 옳은 것은?", options:["특정 작업을 수행하도록 작성된 독립적인 코드 블록","프로그램에서 반드시 한 번만 실행되는 문장","숫자 자료만 저장하는 변수","반복문을 사용할 수 없게 만드는 문법","파일을 삭제하는 명령어"], answer:["특정 작업을 수행하도록 작성된 독립적인 코드 블록"], exp:"함수는 특정 작업을 수행하도록 작성된 독립적인 코드 블록이다."},
+{type:"5지선다", text:"다음 중 내장 함수에 대한 설명으로 가장 옳은 것은?", options:["파이썬 언어에서 기본으로 제공하는 함수","사용자가 반드시 def로 새로 만들어야 하는 함수","외부에서 pip로 설치해야만 쓸 수 있는 함수","함수 안에서만 정의할 수 있는 변수","반환값이 절대 없는 함수"], answer:["파이썬 언어에서 기본으로 제공하는 함수"], exp:"print(), sum()처럼 파이썬이 기본 제공하는 함수를 내장 함수라고 한다."},
+
+{type:"틀린것찾기", text:"다음 중 함수명 규칙에 대한 설명으로 틀린 것은?", options:["함수명은 문자 또는 밑줄로 시작해야 한다.","함수명에는 영문 대소문자, 숫자, 밑줄을 사용할 수 있다.","함수명은 예약어를 사용할 수 없다.","함수명은 대소문자를 구분한다.","함수명은 숫자로 시작해도 항상 올바르다."], answer:["함수명은 숫자로 시작해도 항상 올바르다."], exp:"파이썬 함수명은 변수명 규칙을 따르며 숫자로 시작할 수 없다."},
+{type:"틀린것찾기", text:"다음 중 함수 정의 형식에 대한 설명으로 틀린 것은?", options:["def 명령어로 함수를 정의한다.","함수명 뒤에는 괄호를 쓴다.","괄호 뒤에는 콜론(:)을 쓴다.","함수 본문은 들여쓰기로 작성한다.","함수 본문은 반드시 한 줄로만 작성해야 한다."], answer:["함수 본문은 반드시 한 줄로만 작성해야 한다."], exp:"함수 본문은 여러 줄이 될 수 있으며 들여쓰기로 구분한다."},
+
+{type:"코드 5지선다", text:"다음 코드에 대한 설명으로 옳은 것은?<pre><code>def greet(name):\n    return name + '님 안녕하세요'\n\nprint(greet('민수'))</code></pre>", options:["'민수님 안녕하세요'가 출력된다.","함수는 정의되었지만 호출되지 않는다.","name은 인수가 아니라 전역 변수이다.","return 때문에 print가 실행되지 않는다.","greet 함수는 매개 변수가 없다."], answer:["'민수님 안녕하세요'가 출력된다."], exp:"greet('민수') 호출 결과가 print로 출력되므로 '민수님 안녕하세요'가 출력된다."},
+
+{type:"코드 틀린것찾기", text:"다음 코드에 관한 설명 중 틀린 것은?<pre><code>def add(a, b):\n    result = a + b\n    return result\n\nprint(add(3, 4))</code></pre>", options:["a와 b는 매개 변수이다.","3과 4는 인수이다.","result에는 7이 저장된다.","print(add(3,4))는 7을 출력한다.","add 함수는 반환값이 없다."], answer:["add 함수는 반환값이 없다."], exp:"add 함수는 return result를 통해 반환값을 가진다."},
+
+{type:"빈칸", text:"빈 줄에 들어갈 코드로 가장 알맞은 것은?<pre><code>def square(x):\n    \n\nprint(square(5))  # 25 출력</code></pre>", options:["return x * x","print(x + x)","def x * x","return square","x == 25"], answer:["return x * x"], exp:"5의 제곱인 25를 호출한 곳으로 돌려주려면 return x * x가 알맞다."},
+
+{type:"코드 설명", text:"다음 코드에 관한 옳은 설명을 고르시오.<pre><code>count = 10\n\ndef show():\n    count = 3\n    return count\n\nprint(show())\nprint(count)</code></pre>", options:["첫 줄 출력은 3, 둘째 줄 출력은 10이다.","첫 줄 출력은 10, 둘째 줄 출력은 3이다.","함수 안의 count는 전역 변수 count를 반드시 수정한다.","지역 변수는 전역 변수보다 우선하지 않는다.","show 함수는 호출되지 않는다."], answer:["첫 줄 출력은 3, 둘째 줄 출력은 10이다."], exp:"함수 안의 count는 지역 변수이며 함수 내부에서 전역 변수보다 우선한다. 전역 count는 그대로 10이다."}
+];
+
+let graded=false, lastScore=0, detailText="";
+
+function renderQuiz(){
+ const box=document.getElementById("quiz");
+ box.innerHTML="";
+ questions.forEach((q,i)=>{
+   const div=document.createElement("div");
+   div.className="q";
+   div.id="q"+i;
+   const inputType=q.multi ? "checkbox" : "radio";
+   div.innerHTML=`<div class="q-title"><span class="q-type">${q.type}</span>문항 ${i+1}. ${q.text}</div>`+
+   q.options.map((op,j)=>`<label class="opt"><input type="${inputType}" name="q${i}" value="${escapeHtml(op)}"> ${String.fromCharCode(9312+j)} ${op}</label>`).join("")+
+   `<div class="explain" id="exp${i}"></div>`;
+   box.appendChild(div);
+ });
+}
+function escapeHtml(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");}
+function getSelected(i){return [...document.querySelectorAll(`input[name=q${i}]:checked`)].map(x=>x.value);}
+function sameSet(a,b){return a.length===b.length && a.every(x=>b.includes(x));}
+function gradeQuiz(){
+ const sid=document.getElementById("studentId").value.trim();
+ const name=document.getElementById("studentName").value.trim();
+ if(!sid || !name){alert("학번과 이름을 입력하세요.");return;}
+ let score=0; let lines=[];
+ lines.push(`학번: ${sid}`);
+ lines.push(`이름: ${name}`);
+ lines.push(`과목/단원: 101함수`);
+ lines.push(`응시시각: ${new Date().toLocaleString('ko-KR')}`);
+ lines.push(`총 문항 수: ${questions.length}`);
+ lines.push("");
+ questions.forEach((q,i)=>{
+   const sel=getSelected(i);
+   const ok=sameSet(sel,q.answer);
+   if(ok) score += 5;
+   const qDiv=document.getElementById("q"+i);
+   qDiv.classList.remove("right","wrong");
+   qDiv.classList.add(ok ? "right":"wrong");
+   const exp=document.getElementById("exp"+i);
+   exp.style.display="block";
+   exp.innerHTML=`<b>${ok ? "정답" : "오답"}</b><br>정답: ${q.answer.join(", ")}<br>내 답: ${sel.length?sel.join(", "):"미응답"}<br>상세 설명: ${q.exp}`;
+   lines.push(`[문항 ${i+1}] ${q.type}`);
+   lines.push(`문제: ${q.text.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}`);
+   lines.push(`정답: ${q.answer.join(" / ")}`);
+   lines.push(`내 답: ${sel.length?sel.join(" / "):"미응답"}`);
+   lines.push(`결과: ${ok ? "정답" : "오답"}`);
+   lines.push(`상세 설명: ${q.exp}`);
+   lines.push("");
+ });
+ lastScore=score; graded=true;
+ lines.splice(4,0,`점수: ${score}점`);
+ detailText=lines.join("\n");
+ const res=document.getElementById("result");
+ res.style.display="block";
+ res.innerHTML=`<h3>채점 결과: ${score}점 / 100점</h3><p>${name} 학생의 문항별 정오답과 상세 설명이 화면에 표시되었습니다. TXT 저장 버튼을 누르면 결과 파일을 내려받습니다.</p>`;
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+function safeName(s){return s.replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g,"_");}
+function timeStamp(){
+ const d=new Date(), pad=n=>String(n).padStart(2,"0");
+ return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+}
+function downloadTxt(){
+ if(!graded){gradeQuiz(); if(!graded) return;}
+ const sid=safeName(document.getElementById("studentId").value.trim());
+ const name=safeName(document.getElementById("studentName").value.trim());
+ const filename=`${sid}_${name}_${lastScore}점_101함수_${timeStamp()}.txt`;
+ const blob=new Blob([detailText],{type:"text/plain;charset=utf-8"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+ URL.revokeObjectURL(a.href);
+}
+renderQuiz();
+</script>
+</body>
+</html>

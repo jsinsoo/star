@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2-1 스택과 큐 자동채점 퀴즈</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Malgun Gothic',Arial,sans-serif;background:linear-gradient(135deg,#e8f8ec,#eefcf7);color:#123}
+header{position:sticky;top:0;background:#0f9d7a;color:white;padding:14px 22px;z-index:10;box-shadow:0 3px 12px #0002}
+header h1{margin:0;font-size:24px} header p{margin:6px 0 0;font-size:14px;opacity:.95}
+.container{max-width:1180px;margin:22px auto;padding:0 18px}
+.card{background:white;border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 8px 26px #0b6b5a18;border:1px solid #d8f1e7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{font-weight:700} input[type=text]{width:100%;padding:12px;border:1px solid #b7d9cf;border-radius:10px;font-size:16px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.summary div{background:#f0fff8;border:1px solid #bce8d7;border-radius:14px;padding:14px;text-align:center}
+.badge{display:inline-block;background:#0f9d7a;color:white;border-radius:999px;padding:5px 11px;font-size:13px;margin-right:8px}
+.codebox{background:#17202a;color:#ecf0f1;border-radius:14px;padding:16px;white-space:pre-wrap;font-family:Consolas,monospace;line-height:1.45;overflow:auto}
+.choice{display:block;margin:9px 0;padding:12px 14px;border:1px solid #d7e7e1;border-radius:12px;background:#fbfffd;cursor:pointer}
+.choice:hover{background:#effbf6}
+.qtitle{font-size:19px;font-weight:800;margin-bottom:10px;color:#08634d}
+.explain{display:none;margin-top:12px;padding:13px;border-radius:12px;background:#f6f9ff;border-left:5px solid #3b82f6}
+.correct{border-color:#16a34a!important;background:#ecfdf5!important}
+.wrong{border-color:#dc2626!important;background:#fef2f2!important}
+button{border:0;border-radius:12px;padding:13px 18px;font-size:16px;font-weight:800;cursor:pointer;margin:6px;background:#0f9d7a;color:white}
+button.secondary{background:#334155}
+button.warn{background:#ef4444}
+.small{font-size:13px;color:#4b5563}
+.section-title{font-size:22px;margin:4px 0 14px;border-left:7px solid #0f9d7a;padding-left:10px}
+.extract li{margin:8px 0;line-height:1.65}
+@media(max-width:780px){.grid,.summary{grid-template-columns:1fr} header h1{font-size:20px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Ⅱ 데이터 구조 · 2-1 스택과 큐</h1>
+<p>코드 추출 상세 설명 + 자동채점 퀴즈 20문항 · TXT 저장: 학번_이름_점수_201스택큐_응시시각.txt</p>
+</header>
+<div class="container">
+<section class="card">
+<h2 class="section-title">학번 · 이름 입력</h2>
+<div class="grid">
+<div><label>학번</label><input id="studentId" type="text" placeholder="예: 1101"></div>
+<div><label>이름</label><input id="studentName" type="text" placeholder="예: 홍길동"></div>
+</div>
+</section>
+
+<section class="card extract">
+<h2 class="section-title">핵심 개념 정리</h2>
+<ul>
+<li><b>스택(stack)</b>: 가장 최근에 입력된 데이터가 가장 먼저 출력되는 <b>후입 선출(LIFO)</b> 데이터 구조입니다.</li>
+<li><b>큐(queue)</b>: 가장 먼저 들어온 데이터가 가장 먼저 나가는 <b>선입 선출(FIFO)</b> 데이터 구조입니다.</li>
+<li><b>스택의 top</b>: 삽입과 삭제가 일어나는 스택의 위쪽입니다. 중간에서 삽입·삭제하지 않습니다.</li>
+<li><b>큐의 front / rear</b>: 삭제는 앞쪽(front), 삽입은 뒤쪽(rear)에서 이루어집니다.</li>
+<li><b>push / pop / peek</b>: push는 삽입, pop은 반환 후 삭제, peek은 삭제하지 않고 확인하는 연산입니다.</li>
+<li><b>enqueue / dequeue / peek</b>: enqueue는 큐 뒤쪽 삽입, dequeue는 큐 앞쪽 삭제, peek은 앞쪽 데이터 확인입니다.</li>
+<li><b>언더플로</b>: 빈 스택이나 빈 큐에서 삭제 또는 참조를 시도할 때 발생할 수 있는 오류 상황입니다.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2 class="section-title">코드 추출 상세 설명</h2>
+<h3>1. 리스트로 스택 구현</h3>
+<div class="codebox">class Stack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, data):
+        self.stack.append(data)
+
+    def pop(self):
+        if not self.isEmpty():
+            return self.stack.pop()
+
+    def peek(self):
+        if not self.isEmpty():
+            return self.stack[-1]
+
+    def isEmpty(self):
+        return len(self.stack) == 0</div>
+<ul class="extract">
+<li><b>self.stack = []</b>: 데이터를 저장할 빈 리스트를 만듭니다.</li>
+<li><b>append(data)</b>: 리스트의 마지막에 데이터를 추가하므로 스택의 top에 삽입하는 push와 대응됩니다.</li>
+<li><b>pop()</b>: 리스트의 마지막 요소를 꺼내므로 가장 나중에 들어온 데이터를 먼저 꺼내는 LIFO가 됩니다.</li>
+<li><b>self.stack[-1]</b>: 마지막 요소를 삭제하지 않고 확인하므로 peek 연산입니다.</li>
+</ul>
+<h3>2. 리스트로 큐 구현</h3>
+<div class="codebox">class Queue:
+    def __init__(self):
+        self.que = []
+
+    def enqueue(self, data):
+        self.que.append(data)
+
+    def dequeue(self):
+        if not self.isEmpty():
+            return self.que.pop(0)
+
+    def peek(self):
+        if not self.isEmpty():
+            return self.que[0]
+
+    def isEmpty(self):
+        return len(self.que) == 0</div>
+<ul class="extract">
+<li><b>append(data)</b>: 큐의 뒤쪽(rear)에 데이터를 추가하는 enqueue와 대응됩니다.</li>
+<li><b>pop(0)</b>: 리스트의 첫 번째 데이터를 꺼내므로 가장 먼저 들어온 데이터가 먼저 나가는 FIFO가 됩니다.</li>
+<li><b>self.que[0]</b>: 큐의 앞쪽(front) 데이터를 삭제하지 않고 확인합니다.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2 class="section-title">퀴즈</h2>
+<div id="quiz"></div>
+<div style="text-align:center;margin-top:20px">
+<button onclick="gradeQuiz()">채점하기</button>
+<button class="secondary" onclick="downloadTxt()">TXT 저장</button>
+<button class="warn" onclick="resetQuiz()">다시 풀기</button>
+</div>
+</section>
+
+<section class="card">
+<h2 class="section-title">결과</h2>
+<div class="summary">
+<div><b>총 문항</b><br><span id="total">20</span></div>
+<div><b>맞은 개수</b><br><span id="correct">-</span></div>
+<div><b>점수</b><br><span id="score">-</span></div>
+<div><b>응시시각</b><br><span id="time">-</span></div>
+</div>
+<div id="detail"></div>
+</section>
+</div>
+
+<script>
+const questions = [{"type": "OX", "title": "OX 1", "q": "스택은 가장 나중에 입력된 데이터가 가장 먼저 출력되는 후입 선출(LIFO) 구조이다.", "choices": ["O", "X"], "answer": ["O"], "explain": "스택은 Last In First Out, 즉 마지막에 들어온 데이터가 먼저 나오는 구조입니다."}, {"type": "OX", "title": "OX 2", "q": "큐는 가장 먼저 들어온 데이터가 가장 먼저 나가는 선입 선출(FIFO) 구조이다.", "choices": ["O", "X"], "answer": ["O"], "explain": "큐는 First In First Out, 즉 먼저 들어온 데이터가 먼저 나가는 구조입니다."}, {"type": "OX", "title": "OX 3", "q": "스택에서는 데이터의 삽입과 삭제가 중간에서도 자유롭게 일어난다.", "choices": ["O", "X"], "answer": ["X"], "explain": "스택의 삽입과 삭제는 열린 한쪽 끝, 즉 top에서만 이루어집니다."}, {"type": "OX", "title": "OX 4", "q": "스택의 push 연산은 데이터를 스택의 위쪽에 추가한다.", "choices": ["O", "X"], "answer": ["O"], "explain": "push는 스택에 데이터를 삽입하는 연산이며 top에 데이터를 추가합니다."}, {"type": "OX", "title": "OX 5", "q": "스택의 pop 연산은 데이터를 확인만 하고 삭제하지 않는다.", "choices": ["O", "X"], "answer": ["X"], "explain": "pop은 top 데이터를 반환하면서 삭제합니다. 확인만 하는 연산은 peek입니다."}, {"type": "OX", "title": "OX 6", "q": "큐의 enqueue 연산은 큐의 뒤쪽(rear)에 데이터를 추가한다.", "choices": ["O", "X"], "answer": ["O"], "explain": "큐에서는 삽입이 rear에서 이루어집니다."}, {"type": "OX", "title": "OX 7", "q": "큐의 dequeue 연산은 큐의 뒤쪽(rear) 데이터를 삭제한다.", "choices": ["O", "X"], "answer": ["X"], "explain": "dequeue는 큐의 앞쪽(front) 데이터를 반환하고 삭제합니다."}, {"type": "OX", "title": "OX 8", "q": "빈 스택에서 pop을 시도하면 언더플로 오류 상황이 발생할 수 있다.", "choices": ["O", "X"], "answer": ["O"], "explain": "공백 상태에서 삭제나 참조를 시도하면 언더플로 상황이 됩니다."}, {"type": "OX", "title": "OX 9", "q": "웹 브라우저의 뒤로 가기 기능은 스택 활용 사례로 볼 수 있다.", "choices": ["O", "X"], "answer": ["O"], "explain": "가장 최근에 방문한 페이지로 되돌아가므로 스택의 LIFO 원리를 활용합니다."}, {"type": "OX", "title": "OX 10", "q": "맛집 줄서기, 인쇄 작업 순서, 콜센터 상담 순서는 큐보다 스택에 더 적합하다.", "choices": ["O", "X"], "answer": ["X"], "explain": "순서를 지켜 먼저 온 사람이 먼저 처리되는 상황은 큐에 적합합니다."}, {"type": "MULTI", "title": "진위형 5지선다 1", "q": "스택과 큐에 관한 설명 중 옳은 것을 모두 고르시오. (옳은 것 3개)", "choices": ["스택은 LIFO 방식이다.", "큐는 FIFO 방식이다.", "스택의 삭제는 top에서 이루어진다.", "큐는 항상 중간 데이터부터 삭제한다.", "스택의 peek은 데이터를 삭제한다."], "answer": [0, 1, 2], "explain": "스택은 LIFO, 큐는 FIFO이며 스택의 삽입·삭제는 top에서 이루어집니다. 큐는 front에서 삭제하고, peek은 삭제 없이 확인만 합니다."}, {"type": "MULTI", "title": "진위형 5지선다 2", "q": "파이썬 리스트로 스택과 큐를 구현할 때 옳은 것을 모두 고르시오. (옳은 것 3개)", "choices": ["스택 push는 append()로 구현할 수 있다.", "스택 pop은 pop()으로 구현할 수 있다.", "큐 enqueue는 append()로 구현할 수 있다.", "큐 dequeue는 보통 pop()으로 맨 뒤를 삭제한다.", "큐의 peek은 rear 데이터를 삭제하는 연산이다."], "answer": [0, 1, 2], "explain": "리스트에서 append()는 뒤에 추가하므로 스택 push와 큐 enqueue에 사용할 수 있고, 스택 pop은 pop()으로 구현할 수 있습니다. 큐 dequeue는 앞쪽을 꺼내므로 pop(0)을 사용합니다."}, {"type": "ONE", "title": "옳은 것 고르기 1", "q": "스택의 특징으로 옳은 것은?", "choices": ["가장 먼저 들어온 데이터가 가장 먼저 삭제된다.", "가장 나중에 들어온 데이터가 가장 먼저 삭제된다.", "삽입은 front에서, 삭제는 rear에서 한다.", "중간 데이터 삭제가 핵심 기능이다.", "항상 정렬된 상태로 저장된다."], "answer": [1], "explain": "스택은 가장 나중에 들어온 데이터가 가장 먼저 나가는 LIFO 구조입니다."}, {"type": "ONE", "title": "옳은 것 고르기 2", "q": "큐의 특징으로 옳은 것은?", "choices": ["후입 선출 구조이다.", "삽입과 삭제가 모두 top에서만 이루어진다.", "가장 먼저 들어온 데이터가 가장 먼저 삭제된다.", "pop()만 사용하여 구현한다.", "웹 브라우저 뒤로 가기에만 사용된다."], "answer": [2], "explain": "큐는 가장 먼저 들어온 데이터가 가장 먼저 나가는 FIFO 구조입니다."}, {"type": "ONE", "title": "틀린 것 고르기 1", "q": "스택의 연산에 관한 설명 중 틀린 것은?", "choices": ["push는 데이터를 삽입한다.", "pop은 데이터를 반환하면서 삭제한다.", "peek은 top 데이터를 확인한다.", "isEmpty는 공백 상태를 검사한다.", "peek은 데이터를 삭제한 뒤 반환한다."], "answer": [4], "explain": "peek은 데이터를 삭제하지 않고 확인만 합니다."}, {"type": "ONE", "title": "틀린 것 고르기 2", "q": "큐의 활용 사례에 관한 설명 중 틀린 것은?", "choices": ["인쇄 작업 순서는 큐로 표현할 수 있다.", "콜센터 상담 순서는 큐로 표현할 수 있다.", "맛집 줄서기 앱은 큐의 예이다.", "너비 우선 미로 탐색은 큐를 활용할 수 있다.", "편집기의 되돌리기는 큐의 대표 사례이다."], "answer": [4], "explain": "편집기의 되돌리기는 가장 최근 작업을 먼저 취소하므로 스택의 대표 사례입니다."}, {"type": "CODE_ONE", "title": "예시 코드 옳은 것 고르기 1", "q": "다음 코드의 실행 결과에 대한 설명으로 옳은 것은?", "code": "s = []\ns.append('A')\ns.append('B')\ns.append('C')\nprint(s.pop())\nprint(s[-1])", "choices": ["A가 출력된 뒤 B가 출력된다.", "C가 출력된 뒤 B가 출력된다.", "C가 출력된 뒤 A가 출력된다.", "B가 출력된 뒤 C가 출력된다.", "오류가 발생한다."], "answer": [1], "explain": "append로 A, B, C가 들어가고 pop()은 마지막 C를 꺼냅니다. 남은 리스트의 마지막 원소는 B입니다."}, {"type": "CODE_ONE", "title": "예시 코드 틀린 것 고르기 1", "q": "다음 코드에 관한 설명 중 틀린 것은?", "code": "q = []\nq.append('민수')\nq.append('지아')\nq.append('하늘')\nfirst = q.pop(0)\nprint(first)\nprint(q[0])", "choices": ["append는 큐의 뒤쪽에 데이터를 추가하는 데 사용할 수 있다.", "pop(0)은 큐의 앞쪽 데이터를 삭제하는 데 사용할 수 있다.", "first에는 '민수'가 저장된다.", "두 번째 print는 '지아'를 출력한다.", "이 코드는 후입 선출 방식으로 동작한다."], "answer": [4], "explain": "이 코드는 먼저 들어온 '민수'를 먼저 꺼내므로 선입 선출(FIFO), 즉 큐 방식입니다."}, {"type": "CODE_ONE", "title": "빈칸 코드 고르기", "q": "다음 코드가 큐에서 가장 먼저 들어온 데이터를 꺼내도록 빈칸에 들어갈 코드를 고르시오.", "code": "queue = ['A', 'B', 'C']\nitem = ______\nprint(item)   # A\nprint(queue)  # ['B', 'C']", "choices": ["queue.pop()", "queue.pop(0)", "queue[-1]", "queue.append('A')", "queue.clear()"], "answer": [1], "explain": "큐의 dequeue는 앞쪽(front) 데이터를 꺼내므로 리스트에서는 pop(0)을 사용합니다."}, {"type": "CODE_ONE", "title": "예시 코드 설명 고르기", "q": "다음 코드에 관한 옳은 설명을 고르시오.", "code": "stack = []\nfor ch in 'DATA':\n    stack.append(ch)\nwhile stack:\n    print(stack.pop(), end='')", "choices": ["DATA가 그대로 출력된다.", "ATAD가 출력된다.", "스택이 아니라 큐 방식으로 출력된다.", "append는 리스트 앞쪽에 데이터를 넣는다.", "while문은 한 번도 실행되지 않는다."], "answer": [1], "explain": "'D','A','T','A'를 차례로 넣은 뒤 마지막에 들어온 문자부터 꺼내므로 ATAD가 출력됩니다."}];
+let graded = false;
+let lastResults = [];
+const startTime = new Date();
+
+function esc(s){return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+function renderQuiz(){
+  const box=document.getElementById('quiz');
+  box.innerHTML='';
+  questions.forEach((q,idx)=>{
+    const div=document.createElement('div');
+    div.className='card';
+    const inputType = q.type==='MULTI' ? 'checkbox' : 'radio';
+    let html=`<div class="qtitle"><span class="badge">${idx+1}</span>${esc(q.title)}</div><p>${esc(q.q)}</p>`;
+    if(q.code) html += `<div class="codebox">${esc(q.code)}</div>`;
+    q.choices.forEach((c,i)=>{
+      html += `<label class="choice" id="label_${idx}_${i}"><input type="${inputType}" name="q${idx}" value="${i}"> ${String.fromCharCode(9312+i)} ${esc(c)}</label>`;
+    });
+    html += `<div class="explain" id="exp_${idx}"></div>`;
+    div.innerHTML=html;
+    box.appendChild(div);
+  });
+}
+
+function selected(idx){
+  return Array.from(document.querySelectorAll(`[name=q${idx}]:checked`)).map(x=>Number(x.value));
+}
+function sameArray(a,b){return a.length===b.length && a.every(x=>b.includes(x));}
+
+function gradeQuiz(){
+  let correct=0; lastResults=[];
+  questions.forEach((q,idx)=>{
+    const sel=selected(idx);
+    const ok=sameArray(sel,q.answer);
+    if(ok) correct++;
+    q.choices.forEach((c,i)=>{
+      const lab=document.getElementById(`label_${idx}_${i}`);
+      lab.classList.remove('correct','wrong');
+      if(q.answer.includes(i)) lab.classList.add('correct');
+      if(sel.includes(i) && !q.answer.includes(i)) lab.classList.add('wrong');
+    });
+    const exp=document.getElementById(`exp_${idx}`);
+    exp.style.display='block';
+    exp.innerHTML=`<b>${ok?'정답':'오답'}</b><br>내 답: ${sel.length?sel.map(i=>String.fromCharCode(9312+i)).join(', '):'미응답'}<br>정답: ${q.answer.map(i=>String.fromCharCode(9312+i)).join(', ')}<br>${esc(q.explain)}`;
+    lastResults.push({idx:idx+1,title:q.title,question:q.q,selected:sel,answer:q.answer,ok,explain:q.explain});
+  });
+  const score=Math.round(correct/questions.length*100);
+  document.getElementById('correct').textContent=correct;
+  document.getElementById('score').textContent=score+'점';
+  document.getElementById('time').textContent=formatDate(new Date());
+  document.getElementById('detail').innerHTML=`<p><b>${questions.length}문항 중 ${correct}문항 정답, ${score}점입니다.</b></p>`;
+  graded=true;
+}
+
+function formatDate(d){
+  const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function safeFile(s){return (s||'미입력').replace(/[\\/:*?"<>|\s]+/g,'_');}
+
+function downloadTxt(){
+  if(!graded) gradeQuiz();
+  const sid=document.getElementById('studentId').value.trim();
+  const name=document.getElementById('studentName').value.trim();
+  if(!sid||!name){alert('학번과 이름을 입력하세요.');return;}
+  const correct=lastResults.filter(r=>r.ok).length;
+  const score=Math.round(correct/questions.length*100);
+  const now=new Date();
+  let txt='';
+  txt += `학번: ${sid}\n이름: ${name}\n점수: ${score}점\n`;
+  txt += `단원: 201스택큐\n시작시각: ${formatDate(startTime)}\n응시시각: ${formatDate(now)}\n`;
+  txt += `정답 수: ${correct} / ${questions.length}\n\n`;
+  txt += '===== 문항별 정오답 및 상세 설명 =====\n';
+  lastResults.forEach(r=>{
+    const q=questions[r.idx-1];
+    txt += `\n[${r.idx}] ${q.title}\n문제: ${q.q}\n`;
+    if(q.code) txt += `코드:\n${q.code}\n`;
+    q.choices.forEach((c,i)=> txt += `${String.fromCharCode(9312+i)} ${c}\n`);
+    txt += `내 답: ${r.selected.length?r.selected.map(i=>String.fromCharCode(9312+i)).join(', '):'미응답'}\n`;
+    txt += `정답: ${r.answer.map(i=>String.fromCharCode(9312+i)).join(', ')}\n`;
+    txt += `판정: ${r.ok?'정답':'오답'}\n상세 설명: ${r.explain}\n`;
+  });
+  const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+  const filename=`${safeFile(sid)}_${safeFile(name)}_${score}점_201스택큐_${stamp}.txt`;
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function resetQuiz(){
+  document.querySelectorAll('input').forEach(i=>i.checked=false);
+  document.querySelectorAll('.choice').forEach(l=>l.classList.remove('correct','wrong'));
+  document.querySelectorAll('.explain').forEach(e=>{e.style.display='none'; e.innerHTML='';});
+  document.getElementById('correct').textContent='-';
+  document.getElementById('score').textContent='-';
+  document.getElementById('time').textContent='-';
+  document.getElementById('detail').innerHTML='';
+  graded=false; lastResults=[];
+}
+renderQuiz();
+</script>
+</body>
+</html>

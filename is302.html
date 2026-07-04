@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>3-2 탐색 기반 알고리즘 자동 채점 퀴즈</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Malgun Gothic',Arial,sans-serif;background:linear-gradient(135deg,#eef2ff,#f8fafc);color:#1f2937}
+header{position:sticky;top:0;background:#312e81;color:white;padding:14px 22px;z-index:10;box-shadow:0 3px 12px #0002}
+header h1{margin:0;font-size:24px}
+.wrap{max-width:1180px;margin:0 auto;padding:22px}
+.card{background:white;border-radius:18px;padding:22px;margin:18px 0;box-shadow:0 8px 24px #0001;border:1px solid #e5e7eb}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{font-weight:700}
+input[type=text]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}
+.summary{line-height:1.8}
+.codebox{background:#0f172a;color:#e5e7eb;border-radius:14px;padding:16px;overflow:auto;white-space:pre-wrap;font-family:Consolas,monospace;margin:12px 0}
+.q{border-top:1px dashed #cbd5e1;padding-top:18px;margin-top:18px}
+.q h3{margin:0 0 10px;color:#312e81}
+.opt{display:block;padding:10px 12px;margin:8px 0;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer}
+.opt:hover{background:#eef2ff}
+button{border:0;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer;background:#4f46e5;color:white;font-size:16px;margin:6px}
+button.secondary{background:#475569}
+.result{padding:14px;border-radius:12px;margin-top:12px;background:#f1f5f9;line-height:1.7}
+.correct{color:#059669;font-weight:800}
+.wrong{color:#dc2626;font-weight:800}
+.badge{display:inline-block;background:#ede9fe;color:#5b21b6;border-radius:999px;padding:4px 10px;font-size:13px;margin-left:8px}
+.small{font-size:14px;color:#64748b}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>3-2 탐색 기반 알고리즘 | 자동 채점 HTML</h1></header>
+<div class="wrap">
+<section class="card">
+<h2>학습 내용 요약</h2>
+<div class="summary">
+<b>탐색 기반 알고리즘</b>은 문제의 초기 상태에서 목표 상태까지 도달하는 경로 또는 해를 찾기 위해 가능한 상태를 탐색하는 방법입니다.
+문제는 <b>초기 상태, 목표 상태, 행동</b>으로 표현할 수 있으며, 이 과정에서 발생할 수 있는 모든 가능한 상태들의 집합을 <b>상태 공간</b>이라고 합니다.
+탐색 구조가 선형이면 선형 탐색·이진 탐색을, 비선형이면 DFS·BFS를 활용할 수 있습니다.
+전체 탐색은 모든 경우를 확인하지만, 상태 공간이 크면 탐욕법, 이진 탐색, 분기 한정법처럼 탐색 공간을 줄이는 전략이 필요합니다.
+</div>
+</section>
+
+<section class="card">
+<h2>코드 추출 상세 설명</h2>
+<div class="codebox"># 선형 탐색: 리스트 앞에서부터 하나씩 확인
+def linear_search(data, target):
+    for i in range(len(data)):
+        if data[i] == target:
+            return i
+    return -1
+
+# 이진 탐색: 정렬된 리스트에서 중간값 기준으로 범위 축소
+def binary_search(data, target):
+    left, right = 0, len(data) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if data[mid] == target:
+            return mid
+        elif data[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1</div>
+<p><b>상세 설명</b>: 선형 탐색은 처음부터 끝까지 순서대로 확인하므로 구현이 쉽지만 데이터가 많아지면 느려집니다. 이진 탐색은 정렬된 데이터에서만 사용할 수 있으며, 한 번 비교할 때마다 탐색 범위를 절반으로 줄입니다.</p>
+</section>
+
+<section class="card">
+<h2>응시자 정보</h2>
+<div class="grid">
+<div><label>학번</label><input id="studentId" type="text" placeholder="예: 1101"></div>
+<div><label>이름</label><input id="studentName" type="text" placeholder="예: 홍길동"></div>
+</div>
+<p class="small">제출하면 파일명: 학번_이름_점수_302탐색알고리즘_응시시각.txt 로 저장됩니다.</p>
+</section>
+
+<section class="card">
+<h2>문항</h2>
+<div id="quiz"></div>
+<button onclick="gradeQuiz()">제출 및 채점</button>
+<button class="secondary" onclick="downloadTxt()">TXT 저장</button>
+<div id="finalResult" class="result" style="display:none"></div>
+</section>
+</div>
+
+<script>
+const QUESTIONS = [{"qtype": "OX", "prompt": "OX 1. 탐색 기반 알고리즘은 가능한 해들을 탐색 공간으로 보고 그 안에서 해를 찾아가는 방식이다.", "options": ["O", "X"], "answer": "O", "explanation": "탐색 기반 알고리즘은 가능한 상태나 해를 탐색 공간으로 구조화하고 목표 상태 또는 최적해를 찾는다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 2. 문제는 초기 상태, 목표 상태, 행동의 세 가지 요소로 설명할 수 있다.", "options": ["O", "X"], "answer": "O", "explanation": "초기 상태는 시작점, 목표 상태는 도착점, 행동은 상태를 바꾸는 선택이다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 3. 상태 공간은 초기 상태에서 목표 상태까지 도달하는 동안 거칠 수 있는 모든 가능한 상태들의 집합이다.", "options": ["O", "X"], "answer": "O", "explanation": "상태 공간이 클수록 모든 경우를 살펴보는 전체 탐색은 비효율적일 수 있다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 4. 상태 공간이 매우 큰 문제는 항상 전체 탐색만 사용해야 한다.", "options": ["O", "X"], "answer": "X", "explanation": "상태 공간이 크면 이진 탐색, 탐욕법, 분기 한정법처럼 탐색 공간을 줄이는 방법이 필요할 수 있다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 5. 선형 탐색은 리스트의 처음부터 끝까지 차례대로 값을 검사한다.", "options": ["O", "X"], "answer": "O", "explanation": "선형 탐색은 배열이나 리스트 같은 선형 구조에서 순서대로 확인하는 방법이다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 6. 이진 탐색은 정렬되지 않은 데이터에서도 항상 올바르게 동작한다.", "options": ["O", "X"], "answer": "X", "explanation": "이진 탐색은 정렬된 데이터에서 중간값을 기준으로 탐색 범위를 절반씩 줄이는 방법이다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 7. 깊이 우선 탐색 DFS는 가능한 경로를 끝까지 탐색한 뒤 되돌아온다.", "options": ["O", "X"], "answer": "O", "explanation": "DFS는 스택 또는 재귀를 활용해 한 방향으로 깊게 탐색하고 막히면 되돌아간다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 8. 너비 우선 탐색 BFS는 큐를 활용하여 가까운 노드부터 탐색한다.", "options": ["O", "X"], "answer": "O", "explanation": "BFS는 시작 노드와 가까운 노드를 먼저 방문하므로 최단 경로 탐색에 유리하다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 9. 탐욕 알고리즘은 매 단계에서 가장 좋아 보이는 선택을 한다.", "options": ["O", "X"], "answer": "O", "explanation": "탐욕법은 현재 단계의 국소적 최적 선택을 빠르게 수행하지만 항상 전체 최적해를 보장하지는 않는다.", "code": null, "multi": false}, {"qtype": "OX", "prompt": "OX 10. 분기 한정 알고리즘은 최적해가 될 수 없는 경로를 배제하지 않는다.", "options": ["O", "X"], "answer": "X", "explanation": "분기 한정법은 유망하지 않은 경로를 한정 조건으로 배제하여 탐색 공간을 줄인다.", "code": null, "multi": false}, {"qtype": "진위형 복수선택", "prompt": "다음 보기 중 탐색 기반 알고리즘에 대한 옳은 설명을 모두 고르시오. (옳은 것 3개)", "options": ["문제는 초기 상태, 목표 상태, 행동으로 표현할 수 있다.", "상태 공간은 가능한 모든 상태들의 집합이다.", "전체 탐색은 가능한 모든 경우를 확인한다.", "상태 공간이 작을수록 반드시 분기 한정법만 사용해야 한다.", "탐색 기반 알고리즘은 문제의 부분 문제 관계만 분석하는 방식이다."], "answer": ["A", "B", "C"], "explanation": "A, B, C가 옳다. D는 상황에 따라 다르며, E는 관계 기반 알고리즘에 가까운 설명이다.", "code": null, "multi": true}, {"qtype": "진위형 복수선택", "prompt": "다음 보기 중 탐색 공간 배제에 대한 옳은 설명을 모두 고르시오. (옳은 것 3개)", "options": ["이진 탐색은 정렬된 데이터에서 탐색 범위를 절반씩 줄인다.", "탐욕법은 현재 단계에서 가장 좋은 선택을 한다.", "분기 한정법은 최적해가 될 수 없는 경로를 배제한다.", "탐색 공간 배제는 언제나 해가 있는 영역도 함께 제거해야 한다.", "탐색 공간 배제 알고리즘은 전체 탐색보다 항상 느리다."], "answer": ["A", "B", "C"], "explanation": "A, B, C가 옳다. 해가 있는 영역을 잘못 배제하면 안 되며, 배제는 효율 향상을 목표로 한다.", "code": null, "multi": true}, {"qtype": "5지선다", "prompt": "다음 중 상태 공간에 대한 옳은 설명은?", "options": ["초기 상태에서 목표 상태까지 가능한 상태들의 집합이다.", "정렬된 숫자만 저장하는 리스트이다.", "반드시 하나의 상태만 포함한다.", "프로그램 실행 후 사라지는 변수 이름이다.", "탐욕법에서만 사용되고 DFS에서는 사용하지 않는다."], "answer": "A", "explanation": "상태 공간은 탐색 과정에서 발생할 수 있는 모든 가능한 상태의 집합이다.", "code": null, "multi": false}, {"qtype": "5지선다", "prompt": "다음 중 BFS에 대한 옳은 설명은?", "options": ["큐를 사용하여 시작점과 가까운 노드부터 탐색한다.", "항상 재귀만 사용해야 한다.", "가능한 한 한 경로를 끝까지 먼저 탐색한다.", "정렬된 배열에서만 사용할 수 있다.", "탐색 공간을 모두 삭제한 뒤 시작한다."], "answer": "A", "explanation": "BFS는 큐를 활용해 가까운 노드부터 탐색하며 최단 경로 보장에 유리하다.", "code": null, "multi": false}, {"qtype": "5지선다", "prompt": "다음 중 틀린 설명은?", "options": ["선형 탐색은 처음부터 끝까지 차례로 검사한다.", "DFS는 스택 또는 재귀로 구현할 수 있다.", "BFS는 큐를 활용할 수 있다.", "이진 탐색은 정렬된 데이터에서 효과적이다.", "이진 탐색은 정렬되지 않은 데이터에서도 항상 정확하다."], "answer": "E", "explanation": "이진 탐색은 정렬된 데이터에서 중간값을 기준으로 범위를 줄여야 올바르게 동작한다.", "code": null, "multi": false}, {"qtype": "5지선다", "prompt": "다음 중 틀린 설명은?", "options": ["전체 탐색은 가능한 모든 경우를 시도한다.", "탐욕 알고리즘은 빠르고 직관적인 경우가 많다.", "분기 한정법은 유망하지 않은 경로를 배제한다.", "탐색 공간을 잘못 배제하면 정답을 놓칠 수 있다.", "탐욕 알고리즘은 모든 문제에서 항상 최적해를 보장한다."], "answer": "E", "explanation": "탐욕법은 항상 최적해를 보장하지 않는다. 문제 구조가 탐욕 선택을 허용할 때만 최적해가 보장된다.", "code": null, "multi": false}, {"qtype": "코드형 5지선다", "prompt": "예시 코드를 보고 옳은 설명을 고르시오.", "options": ["출력 결과는 2이다.", "출력 결과는 7이다.", "이 코드는 이진 탐색이다.", "target이 없으면 0을 반환한다.", "반복문은 항상 한 번만 실행된다."], "answer": "A", "explanation": "리스트에서 7은 인덱스 2에 있으므로 2가 출력된다. 없으면 -1을 반환한다.", "code": "def linear_search(data, target):\n    for i in range(len(data)):\n        if data[i] == target:\n            return i\n    return -1\n\nprint(linear_search([4, 2, 7, 9], 7))", "multi": false}, {"qtype": "코드형 5지선다", "prompt": "예시 코드를 보고 틀린 설명을 고르시오.", "options": ["deque를 큐처럼 사용한다.", "popleft()는 큐의 앞쪽 원소를 꺼낸다.", "출력에는 A가 포함된다.", "이 코드는 너비 우선 탐색 방식과 관련 있다.", "출력 결과는 ['D', 'C', 'B', 'A']이다."], "answer": "E", "explanation": "큐를 사용하므로 A, B, C, D 순서로 방문된다. 역순 출력이 아니다.", "code": "from collections import deque\n\ngraph = {\n    'A': ['B', 'C'],\n    'B': ['D'],\n    'C': [],\n    'D': []\n}\n\nq = deque(['A'])\nvisited = []\n\nwhile q:\n    node = q.popleft()\n    if node not in visited:\n        visited.append(node)\n        q.extend(graph[node])\n\nprint(visited)", "multi": false}, {"qtype": "빈칸 코드", "prompt": "빈 줄에 들어갈 코드로 가장 적합한 것은?", "options": ["left = mid + 1", "right = mid + 1", "left = mid - 1", "return -1", "data[mid] = target"], "answer": "A", "explanation": "중간값이 target보다 작으면 target은 오른쪽에 있으므로 left를 mid+1로 옮긴다.", "code": "def binary_search(data, target):\n    left = 0\n    right = len(data) - 1\n\n    while left <= right:\n        mid = (left + right) // 2\n\n        if data[mid] == target:\n            return mid\n        elif data[mid] < target:\n            __________\n        else:\n            right = mid - 1\n\n    return -1\n\nprint(binary_search([1, 3, 5, 7, 9], 7))", "multi": false}, {"qtype": "코드 설명형", "prompt": "예시 코드에 관한 옳은 설명 1개를 고르시오.", "options": ["재귀 호출을 이용한 깊이 우선 탐색 코드이다.", "큐를 사용하여 너비 우선 탐색을 수행한다.", "visited는 방문 여부와 무관하다.", "start는 항상 숫자만 가능하다.", "그래프의 모든 간선을 삭제하는 코드이다."], "answer": "A", "explanation": "함수 dfs가 자기 자신을 호출하면서 갈 수 있는 노드를 깊게 탐색하므로 DFS 코드이다.", "code": "def dfs(graph, start, visited=None):\n    if visited is None:\n        visited = []\n    visited.append(start)\n\n    for nxt in graph[start]:\n        if nxt not in visited:\n            dfs(graph, nxt, visited)\n\n    return visited\n\ng = {'A':['B','C'], 'B':['D'], 'C':[], 'D':[]}\nprint(dfs(g, 'A'))", "multi": false}];
+const letters = ['A','B','C','D','E'];
+let gradedText = '';
+function renderQuiz(){
+  const box=document.getElementById('quiz');
+  QUESTIONS.forEach((q,idx)=>{
+    const div=document.createElement('div');
+    div.className='q';
+    let code=q.code?`<div class="codebox">${escapeHtml(q.code)}</div>`:'';
+    let opts=q.options.map((op,i)=>{
+      const val=q.options.length===2?op:letters[i];
+      const name='q'+idx;
+      const type=q.multi?'checkbox':'radio';
+      return `<label class="opt"><input type="${type}" name="${name}" value="${val}"> ${q.options.length===2?op:letters[i]+'. '+escapeHtml(op)}</label>`;
+    }).join('');
+    div.innerHTML=`<h3>문항 ${idx+1} <span class="badge">${q.qtype}</span></h3><p>${escapeHtml(q.prompt)}</p>${code}${opts}<div id="r${idx}" class="result" style="display:none"></div>`;
+    box.appendChild(div);
+  });
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function getAns(i){
+ const q=QUESTIONS[i];
+ const checked=[...document.querySelectorAll(`[name=q${i}]:checked`)].map(x=>x.value);
+ return q.multi?checked.sort():checked[0]||'';
+}
+function same(a,b){return JSON.stringify(a)==JSON.stringify(b);}
+function gradeQuiz(){
+ let score=0, lines=[];
+ const sid=document.getElementById('studentId').value.trim();
+ const name=document.getElementById('studentName').value.trim();
+ const now=new Date();
+ lines.push(`학번: ${sid}`);
+ lines.push(`이름: ${name}`);
+ lines.push(`과목: 302탐색알고리즘`);
+ lines.push(`응시시각: ${formatDate(now)}`);
+ lines.push('');
+ QUESTIONS.forEach((q,i)=>{
+   const user=getAns(i);
+   const correct=q.answer;
+   const ok=q.multi?same(user,correct):user===correct;
+   if(ok) score+=5;
+   const r=document.getElementById('r'+i);
+   r.style.display='block';
+   r.innerHTML=`${ok?'<span class="correct">정답</span>':'<span class="wrong">오답</span>'}<br>내 답: ${Array.isArray(user)?user.join(', '):user||'미응답'}<br>정답: ${Array.isArray(correct)?correct.join(', '):correct}<br>해설: ${escapeHtml(q.explanation)}`;
+   lines.push(`[문항 ${i+1}] ${q.prompt}`);
+   if(q.code) lines.push(`코드:\n${q.code}`);
+   lines.push(`내 답: ${Array.isArray(user)?user.join(', '):user||'미응답'}`);
+   lines.push(`정답: ${Array.isArray(correct)?correct.join(', '):correct}`);
+   lines.push(`정오답: ${ok?'정답':'오답'}`);
+   lines.push(`상세 설명: ${q.explanation}`);
+   lines.push('');
+ });
+ const final=document.getElementById('finalResult');
+ final.style.display='block';
+ final.innerHTML=`<b>총점: ${score} / 100점</b><br>TXT 저장 버튼을 눌러 결과 파일을 저장하세요.`;
+ lines.splice(2,0,`점수: ${score} / 100`);
+ gradedText=lines.join('\n');
+}
+function formatDate(d){
+ const p=n=>String(n).padStart(2,'0');
+ return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;
+}
+function downloadTxt(){
+ if(!gradedText) gradeQuiz();
+ const sid=document.getElementById('studentId').value.trim()||'학번';
+ const name=document.getElementById('studentName').value.trim()||'이름';
+ const scoreMatch=gradedText.match(/점수: (\d+)/);
+ const score=scoreMatch?scoreMatch[1]:'점수';
+ const now=formatDate(new Date());
+ const filename=`${sid}_${name}_${score}_302탐색알고리즘_${now}.txt`;
+ const blob=new Blob([gradedText],{type:'text/plain;charset=utf-8'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=filename;
+ a.click();
+ URL.revokeObjectURL(a.href);
+}
+renderQuiz();
+</script>
+</body>
+</html>
